@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css"
+    />
+    <script
+      src="https://kit.fontawesome.com/6579bcae86.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Cashier</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+      * {
+        font-family: "DM Sans", sans-serif;
+        font-optical-sizing: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex flex-row">
+      <div
+        id="sidebar"
+        class="transition-all duration-500 w-96 bg-gray-200 text-black"
+      >
+        {% include "./includes/sidebar.html" %}
+      </div>
+      <div id="main" class="w-full p-3">
+        <div class="flex flex-row justify-between">
+          <div class="font-bold text-3xl py-5">
+            <i
+              class="transition-all duration-700 fa-solid fa-bars cursor-pointer hover:-translate-y-1"
+              id="minimizeBtn"
+            ></i>
+            Welcome Users
+          </div>
+          <div class="font-bold text-3xl py-5">
+            <h2>Total Visitors</h2>
+            <h2 class="text-center">
+              <i class="fa-solid fa-users"></i>
+              <span id="total_visitors">0</span>
+            </h2>
+          </div>
+        </div>
+        <div class="mt-5">
+          <h1 class="text-4xl w-full text-center font-bold">
+            <i class="fa-solid fa-hand-holding-dollar mx-1"></i> Cashier
+            Transaction
+          </h1>
+          <div class="flex flex-row mt-7 gap-7">
+            <div>
+              <p class="inline font-bold">ID Type:</p>
+              <select id="typeInput" class="border-2 rounded shadow inline">
+                <option value="1">All</option>
+                <option value="2">National ID</option>
+                <option value="3">HUMID ID</option>
+                <option value="4">Driver's License</option>
+              </select>
+            </div>
+            <div>
+              <p class="font-bold inline">Search:</p>
+              <input
+                type="text"
+                class="border-2 shadow rounded w-400"
+                placeholder="Enter the Name"
+                id="searchInput"
+              />
+              <button class="px-2 bg-black text-white rounded shadow">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card mt-5">
+          <table class="w-full">
+            <thead class="border-b-2">
+              <tr>
+                <th class="text-start">
+                  <i class="fa-solid fa-user"></i> Full Name
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-id-card-clip"></i> ID Type
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-cash-register"></i> Status
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-book"></i> Purpose
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-clock"></i> Start of Transaction
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-clock"></i> End of Transaction
+                </th>
+
+                <th class="text-center">Done Transaction?</th>
+              </tr>
+            </thead>
+            <tbody id="cashierData">
+              {% for visitor in cashier %}
+              <tr
+                class="pt-2 {{visitor.LastName}}_{{visitor.ID}}"
+                data-aos="slide-up"
+              >
+                <td class="pt-3 font-semibold">
+                  {{visitor.FirstName}} {{visitor.LastName}}
+                </td>
+                <td class="pt-3 font-semibold">{{visitor.Type}}</td>
+                <td class="pt-3 font-semibold">
+                  <span class="bg-sky-200 px-3 py-1 rounded-full"
+                    >{{visitor.Status}}</span
+                  >
+                </td>
+                <td class="pt-3 font-semibold">{{visitor.Purpose}}</td>
+                <td class="pt-3 font-semibold">
+                  {{visitor.TimeOfTransaction}}
+                </td>
+                <td></td>
+                <td class="pt-3 font-semibold text-center">
+                  <button
+                    class="transition-all duration-500 text-base bg-green-400 px-4 rounded shadow hover:-translate-y-2 hover:scale-110 transacted"
+                    data-first-name="{{visitor.FirstName}}"
+                    data-last-name="{{visitor.LastName}}"
+                    data-id="{{visitor.ID}}"
+                  >
+                    Transaction Complete
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-30">
+          <h2 class="w-full text-4xl text-center font-extrabold mt-20">
+            <i class="fa-solid fa-people-group mx-1"></i> Visitor's Table
+          </h2>
+          <div class="flex flex-row mt-7 gap-7">
+            <div>
+              <p class="inline font-bold">Status:</p>
+              <select id="statusInput" class="border-2 rounded shadow inline">
+                <option value="1">All</option>
+                <option value="2">Pending</option>
+                <option value="3">Complete</option>
+              </select>
+            </div>
+            <div>
+              <p class="inline font-bold">ID Type:</p>
+              <select
+                id="typeInputFilter"
+                class="border-2 rounded shadow inline"
+              >
+                <option value="1">All</option>
+                <option value="2">National ID</option>
+                <option value="3">HUMID ID</option>
+                <option value="4">Driver's License</option>
+              </select>
+            </div>
+            <div>
+              <p class="font-bold inline">Search:</p>
+              <input
+                type="text"
+                class="border-2 shadow rounded w-400"
+                placeholder="Enter the Name"
+                id="searchInputFilter"
+              />
+              <button class="px-2 bg-black text-white rounded shadow">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+            </div>
+          </div>
+          <div class="mt-5 transition-all duration-300">
+            <table class="w-full mt-5">
+              <thead class="border-b-2">
+                <tr>
+                  <th class="text-start">
+                    <i class="fa-solid fa-user"></i> Full Name
+                  </th>
+                  <th class="text-start">
+                    <i class="fa-solid fa-id-card-clip"></i> ID Type
+                  </th>
+                  <th class="text-start">
+                    <i class="fa-solid fa-cash-register"></i> Status
+                  </th>
+                  <th class="text-center">
+                    <i class="fa-solid fa-book"></i> Start Transaction
+                  </th>
+                  <th class="text-start">
+                    <i class="fa-solid fa-clock"></i> Date and Time
+                  </th>
+                  <th class="text-start">
+                    <i class="fa-solid fa-clock"></i> Time of Egress
+                  </th>
+                  <th class="text-center">Missing Visitors card?</th>
+                </tr>
+              </thead>
+              <tbody id="dataTable">
+                {% for visitor in visitors%}
+                <tr class="pt-2">
+                  <td class="pt-3 font-semibold">
+                    {{visitor.FirstName |title}} {{visitor.LastName|title}}
+                  </td>
+                  <td class="pt-3 font-semibold">{{visitor.Type}}</td>
+                  <td
+                    class="pt-3 font-semibold"
+                    id="{{visitor.LastName}}_{{visitor.FirstName}}"
+                  >
+                    {% if visitor.STATUS == "Pending" %}
+                    <span class="bg-orange-200 px-3 py-1 rounded-full"
+                      >{{visitor.STATUS}}</span
+                    >
+                    {% elif visitor.STATUS == "Ongoing" %}
+                    <span class="bg-sky-200 px-3 py-1 rounded-full"
+                      >{{visitor.STATUS}}</span
+                    >
+                    {% endif %}
+                  </td>
+                  <td class="pt-3 font-semibold text-center">
+                    <button
+                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 cashierData"
+                      data-first-name="{{visitor.FirstName}}"
+                      data-last-name="{{visitor.LastName}}"
+                      data-id-type="{{visitor.Type}}"
+                    >
+                      <i class="fa-solid fa-check"></i>
+                    </button>
+                  </td>
+                  <td class="pt-3 font-semibold">{{visitor.LogIn}}</td>
+                  <td class="pt-3 font-semibold">Time</td>
+                  <td class="pt-3 text-center font-semibold">
+                    <button
+                      class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                      id="row{{visitor.Count}}"
+                    >
+                      Contact to admin
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.js"
+      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init();
+    </script>
+    <script>
+      const serverName = "http://127.0.0.1:8000";
+      function getCSRFToken() {
+        return document
+          .querySelector('meta[name="csrf-token"]')
+          .getAttribute("content");
+      }
+      const addCashier = (firstName, lastName, idType, start, end) => {
+        let htmlLine = "";
+        $.ajax({
+          url: `${serverName}/dataCashier`,
+          type: "POST",
+          data: JSON.stringify({
+            first: firstName,
+            last: lastName,
+            id: idType,
+          }),
+          headers: {
+            "X-CSRFToken": getCSRFToken(), // Include the CSRF token
+          },
+          success: (response) => {
+            if (response.status) {
+              console.log("Already in the data");
+            } else if (!response.status) {
+              var data = response.data;
+              htmlLine += `
+                    <tr data-aos = "slide-up" class = "${data.LastName}_${data.ID}">
+                        <td class = 'pt-3 font-semibold'>${data.FirstName} ${data.LastName}</td>
+                        <td class = 'pt-3 font-semibold'>${data.Type}</td>
+                        <td class = 'pt-3 font-semibold'>
+                                <span class="bg-sky-200 px-3 py-1 rounded-full"
+                                >
+                                ${data.Status}
+                                </span
+                            ></td>
+                        <td class = 'pt-3 font-semibold'>${data.Purpose}</td>
+                        <td class = 'pt-3 font-semibold'>${data.TimeOfTransaction}</td>
+                        <td></td>
+                        <td class="pt-3 font-semibold text-center">
+                            <button
+                                class="transition-all duration-500 text-base bg-green-400 px-4 rounded shadow hover:-translate-y-2 hover:scale-110 transacted"
+                                data-first-name="${data.FirstName}"
+                                data-last-name="${data.LastName}"
+                                data-id="${data.ID}"
+                            >
+                                Transaction Complete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+              var status = document.getElementById(
+                `${data.LastName}_${data.FirstName}`
+              );
+              console.log(status);
+              status.innerHTML = `
+               <td class="pt-3 font-semibold">
+                  <span class="bg-sky-200 px-3 py-1 rounded-full"
+                    >${data.Status}</span
+                  >
+                </td>
+              `;
+              $(`.${data.LastName}_${data.ID}`).click(function () {
+                console.log("Working");
+              });
+            }
+
+            $("#cashierData").append(htmlLine);
+          },
+          error: function (xhr, status, error) {
+            console.log("Error", error);
+          },
+        });
+      };
+
+      const removeCashier = (firstName, LastName, id) => {
+        $.ajax({
+          url: `${serverName}/removeCashier`,
+          type: "POST",
+          data: JSON.stringify({
+            first: firstName,
+            last: LastName,
+            id_num: id,
+          }),
+          headers: {
+            "X-CSRFToken": getCSRFToken(),
+          },
+          success: (response) => {},
+          error: function (xhr, status, error) {
+            console.log("Error", error);
+          },
+        });
+      };
+
+      let allbtn_add = document.querySelectorAll(".cashierData");
+      let allbtn_transaction = document.querySelectorAll(".transacted");
+
+      // allbtn_add.forEach((btn) => {
+      //   btn.addEventListener("click", (event) => {
+      //     console.log(allbtn_transaction);
+      //     const firstName = btn.dataset.firstName;
+      //     const lastName = btn.dataset.lastName;
+      //     const idType = btn.dataset.idType;
+      //     addCashier(firstName, lastName, idType);
+      //   });
+      // });
+      // Event delegation for cashier table
+      document
+        .getElementById("cashierData")
+        .addEventListener("click", (event) => {
+          if (event.target.classList.contains("transacted")) {
+            const btn = event.target;
+            const firstName = btn.dataset.firstName;
+            const lastName = btn.dataset.lastName;
+            const id = btn.dataset.id;
+            removeCashier(firstName, lastName, id);
+            $(`.${lastName}_${id}`).hide(1000);
+            setTimeout(() => {
+              $(`.${lastName}_${id}`).remove();
+            }, 2000);
+            const returnPending = document.getElementById(
+              `#${lastName}_${firstName}`
+            );
+            console.log(returnPending);
+            returnPending.innerHTML = `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                      >Pending</span
+                    >`;
+          }
+        });
+
+      // Event delegation for visitor's table
+      document
+        .getElementById("dataTable")
+        .addEventListener("click", (event) => {
+          if (event.target.classList.contains("cashierData")) {
+            const btn = event.target;
+            const firstName = btn.dataset.firstName;
+            const lastName = btn.dataset.lastName;
+            const idType = btn.dataset.idType;
+            addCashier(firstName, lastName, idType);
+          }
+        });
+
+      // allbtn_transaction.forEach((btn) => {
+      //   console.log(btn.dataset);
+      //   btn.addEventListener("click", () => {
+      //     const firstName = btn.dataset.firstName;
+      //     const lastName = btn.dataset.lastName;
+      //     const id = btn.dataset.id;
+      //     console.log(lastName, id);
+      //     removeCashier(firstName, lastName, id);
+      //     $(`.${lastName}_${id}`).hide(1000);
+      //     setTimeout(() => {
+      //       $(`.${lastName}_${id}`).remove();
+      //     }, 2000);
+      //   });
+      // });
+
+      // setInterval(function () {
+      //   allbtn_transaction = document.querySelectorAll(".transacted");
+      //   allbtn_transaction.forEach((btn) => {
+      //     btn.addEventListener("click", () => {
+      //       const firstName = btn.dataset.firstName;
+      //       const lastName = btn.dataset.lastName;
+      //       const id = btn.dataset.id;
+      //       console.log(lastName, id);
+      //       removeCashier(firstName, lastName, id);
+      //       $(`.${lastName}_${id}`).hide(1000);
+      //       setTimeout(() => {
+      //         $(`.${lastName}_${id}`).remove();
+      //       }, 2000);
+      //     });
+      //   });
+      // }, 1000);
+
+      const minimizeBtn = document.querySelector("#minimizeBtn");
+      minimizeBtn.addEventListener("click", () => {
+        document.querySelector("#sidebar").classList.toggle("w-0");
+        document.querySelector("#sidebar").classList.toggle("overflow-hidden");
+      });
+    </script>
+  </body>
+</html>

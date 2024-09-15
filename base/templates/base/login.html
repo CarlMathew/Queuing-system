@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/6579bcae86.js"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+      * {
+        font-family: "DM Sans", sans-serif;
+        font-optical-sizing: auto;
+      }
+    </style>
+    <title>Login</title>
+  </head>
+  <!-- B7E1B5 -->
+  <body>
+    <div class="h-screen w-full flex justify-center items-center">
+      <form action="" class="bg-[#21825C] py-5 px-16 shadow-xl rounded">
+        <i
+          class="fa-solid fa-cow text-center w-full text-4xl text-white mt-2"
+        ></i>
+        <h2 class="text-2xl font-black text-white text-center mt-1">
+          Welcome Tamaraws
+        </h2>
+
+        <div class="mt-6 flex items-center justify-center relative">
+          <input
+            type="text"
+            class="border-b-2 border-gray-100 bg-transparent focus:outline-none w-full text-white peer focus:border-yellow-200"
+            id="username"
+          />
+          <label
+            for="username"
+            class="transition-all duration-700 absolute left-0 text-white text-base peer-focus:text-base peer-focus:-translate-y-5 peer-focus:text-yellow-200"
+            ><i class="fa-solid fa-user"></i> Username</label
+          >
+        </div>
+        <div class="mt-6 flex items-center justify-center relative">
+          <input
+            type="password"
+            class="border-b-2 border-gray-100 bg-transparent focus:outline-none w-full text-white peer focus:border-yellow-200"
+            id="password"
+          />
+          <label
+            for="password"
+            class="transition-all duration-700 absolute left-0 text-white text-base peer-focus:text-base peer-focus:-translate-y-5 peer-focus:text-yellow-200"
+            ><i class="fa-solid fa-lock"></i> Password</label
+          >
+        </div>
+
+        <div class="flex justify-center items-center mb-2">
+          <button
+            type="submit"
+            class="transition-all duration-300 mt-5 text-white border-white border-2 px-2 text-base rounded text-center hover:bg-yellow-200 hover:scale-110 hover:text-black hover:-translate-y-1"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
