@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-l^&w-7tl09sw07ae3u@o-@^ver^j(#98xo(96q535#6!1$g$qd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.4' , '127.0.0.1']
+ALLOWED_HOSTS = ['192.168.1.4' , '127.0.0.1', '*']
 
 
 # Application definition
@@ -73,6 +73,8 @@ WSGI_APPLICATION = 'GuestManagementWebsite.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+
 
 DATABASES = {
     'default': {

@@ -134,7 +134,9 @@
                     class="transition-all duration-500 text-base bg-green-400 px-4 rounded shadow hover:-translate-y-2 hover:scale-110 transacted"
                     data-first-name="{{visitor.FirstName}}"
                     data-last-name="{{visitor.LastName}}"
+                    data-rfid="{{visitor.RFID_NUM}}"
                     data-id="{{visitor.ID}}"
+                    data-type="{{visitor.Type}}"
                   >
                     Transaction Complete
                   </button>
@@ -150,23 +152,14 @@
           </h2>
           <div class="flex flex-row mt-7 gap-7">
             <div>
-              <p class="inline font-bold">Status:</p>
-              <select id="statusInput" class="border-2 rounded shadow inline">
-                <option value="1">All</option>
-                <option value="2">Pending</option>
-                <option value="3">Complete</option>
-              </select>
-            </div>
-            <div>
               <p class="inline font-bold">ID Type:</p>
-              <select
-                id="typeInputFilter"
-                class="border-2 rounded shadow inline"
-              >
-                <option value="1">All</option>
-                <option value="2">National ID</option>
-                <option value="3">HUMID ID</option>
-                <option value="4">Driver's License</option>
+              <select class="border-2 rounded shadow inline" id="idTypeVisitor">
+                <option value="All">All</option>
+                <option value="Philippine Identification Card">
+                  National ID
+                </option>
+                <option value="Unified Multi-Purpose Id">HUMID ID</option>
+                <option value="Drivers License">Driver's License</option>
               </select>
             </div>
             <div>
@@ -175,9 +168,12 @@
                 type="text"
                 class="border-2 shadow rounded w-400"
                 placeholder="Enter the Name"
-                id="searchInputFilter"
+                id="searchInputVisitor"
               />
-              <button class="px-2 bg-black text-white rounded shadow">
+              <button
+                class="px-2 bg-black text-white rounded shadow"
+                id="searchBtn_visitor"
+              >
                 <i class="fa-solid fa-magnifying-glass"></i>
               </button>
             </div>
@@ -193,6 +189,9 @@
                     <i class="fa-solid fa-id-card-clip"></i> ID Type
                   </th>
                   <th class="text-start">
+                    <i class="fa-solid fa-id-card-clip"></i> Purpose
+                  </th>
+                  <th class="text-start">
                     <i class="fa-solid fa-cash-register"></i> Status
                   </th>
                   <th class="text-center">
@@ -200,9 +199,6 @@
                   </th>
                   <th class="text-start">
                     <i class="fa-solid fa-clock"></i> Date and Time
-                  </th>
-                  <th class="text-start">
-                    <i class="fa-solid fa-clock"></i> Time of Egress
                   </th>
                   <th class="text-center">Missing Visitors card?</th>
                 </tr>
@@ -214,17 +210,18 @@
                     {{visitor.FirstName |title}} {{visitor.LastName|title}}
                   </td>
                   <td class="pt-3 font-semibold">{{visitor.Type}}</td>
+                  <td class="pt-3 font-semibold">{{visitor.Purpose}}</td>
                   <td
                     class="pt-3 font-semibold"
-                    id="{{visitor.LastName}}_{{visitor.FirstName}}"
+                    id="Status{{visitor.RFID_NUM}}"
                   >
-                    {% if visitor.STATUS == "Pending" %}
+                    {% if visitor.Status == "Pending" %}
                     <span class="bg-orange-200 px-3 py-1 rounded-full"
-                      >{{visitor.STATUS}}</span
+                      >{{visitor.Status}}</span
                     >
-                    {% elif visitor.STATUS == "Ongoing" %}
+                    {% elif visitor.Status == "Ongoing" %}
                     <span class="bg-sky-200 px-3 py-1 rounded-full"
-                      >{{visitor.STATUS}}</span
+                      >{{visitor.Status}}</span
                     >
                     {% endif %}
                   </td>
@@ -234,12 +231,13 @@
                       data-first-name="{{visitor.FirstName}}"
                       data-last-name="{{visitor.LastName}}"
                       data-id-type="{{visitor.Type}}"
+                      data-rfid="{{visitor.RFID_NUM}}"
                     >
-                      <i class="fa-solid fa-check"></i>
+                      Start
                     </button>
                   </td>
                   <td class="pt-3 font-semibold">{{visitor.LogIn}}</td>
-                  <td class="pt-3 font-semibold">Time</td>
+
                   <td class="pt-3 text-center font-semibold">
                     <button
                       class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
@@ -273,7 +271,288 @@
           .querySelector('meta[name="csrf-token"]')
           .getAttribute("content");
       }
-      const addCashier = (firstName, lastName, idType, start, end) => {
+      var currentCount = {{ count|safe }}
+
+      const idTypeSearch = () => {
+        $.ajax({
+          url: `${serverName}/id_type_search`,
+          type:"POST",
+          headers: {
+            "X-CSRFToken": getCSRFToken(),
+          },
+          data: JSON.stringify({
+            "id": document.querySelector("#idTypeVisitor").value
+          }),
+          success: (response) => {
+            let data = response.data
+            let newData = ''
+            $("#dataTable").html('')
+
+
+            data.forEach((visitor) => {
+               newData += `
+                <tr class="pt-2"  >
+                  <td class="pt-3 font-semibold">
+                    ${visitor.FullName}
+                  </td>
+                  <td class="pt-3 font-semibold">${visitor.Type}</td>
+                  <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                  <td
+                    class="pt-3 font-semibold"
+                    id="Status${visitor.RFID_NUM}"
+                  >
+                    ${
+                        visitor.Status == 'Pending' ?
+                        `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span
+                        >`: visitor.Status == "Ongoing" ?
+                      `<span class="bg-sky-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span` : `<span class="bg-green-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span`
+                    }
+                  </td>
+                  <td class="pt-3 font-semibold text-center">
+                    <button
+                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 cashierData"
+                      data-first-name="${visitor.FirstName}"
+                      data-last-name="${visitor.LastName}"
+                      data-id-type="${visitor.Type}"
+                      data-rfid="${visitor.RFID_NUM}"
+                    >
+                      Start
+                    </button>
+                  </td>
+                  <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
+
+                  <td class="pt-3 text-center font-semibold">
+                    <button
+                      class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                      id="row${visitor.Count}"
+                    >
+                      Contact to admin
+                    </button>
+                  </td>
+                </tr>
+                `
+            })
+            $("#dataTable").append(newData)
+
+          },
+          error: function (xhr, status, error) {
+            console.log("Error", error);
+          },
+        })
+
+      }
+
+
+      document.querySelector("#idTypeVisitor").addEventListener("change", function(){
+        idTypeSearch()
+      })
+
+
+      const searchFunction = () => {
+        $.ajax({
+          url: `${serverName}/search_visitor`,
+          type:"POST",
+          headers: {
+              "X-CSRFToken": getCSRFToken(),
+          },
+          data: JSON.stringify({
+            'name': $("#searchInputVisitor").val()
+          }),
+          success: (response) => {
+            let data = response.data
+            let newData = ''
+            $("#dataTable").html('')
+
+
+            data.forEach((visitor) => {
+               newData += `
+                <tr class="pt-2"  >
+                  <td class="pt-3 font-semibold">
+                    ${visitor.FullName}
+                  </td>
+                  <td class="pt-3 font-semibold">${visitor.Type}</td>
+                  <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                  <td
+                    class="pt-3 font-semibold"
+                    id="Status${visitor.RFID_NUM}"
+                  >
+                    ${
+                        visitor.Status == 'Pending' ?
+                        `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span
+                        >`: visitor.Status == "Ongoing" ?
+                      `<span class="bg-sky-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span` : `<span class="bg-green-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span`
+                    }
+                  </td>
+                  <td class="pt-3 font-semibold text-center">
+                    <button
+                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 cashierData"
+                      data-first-name="${visitor.FirstName}"
+                      data-last-name="${visitor.LastName}"
+                      data-id-type="${visitor.Type}"
+                      data-rfid="${visitor.RFID_NUM}"
+                    >
+                      Start
+                    </button>
+                  </td>
+                  <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
+
+                  <td class="pt-3 text-center font-semibold">
+                    <button
+                      class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                      id="row${visitor.Count}"
+                    >
+                      Contact to admin
+                    </button>
+                  </td>
+                </tr>
+                `
+            })
+            $("#dataTable").append(newData)
+          },
+          error: function (xhr, status, error) {
+            console.log("Error", error);
+          },
+        })
+      }
+
+      const new_visitor = () => {
+        $.ajax({
+          url: `${serverName}/insert`,
+          type:"POST",
+          headers: {
+              "X-CSRFToken": getCSRFToken(),
+          },
+          success: (response) => {
+              tblData = document.querySelector("#dataTable")
+              var count = response.count
+              var visitor = response.visitor
+              let newData = ''
+              console.log(visitor)
+              if(count > currentCount){
+                newData += `
+                <tr class="pt-2">
+                  <td class="pt-3 font-semibold">
+                    ${visitor.FirstName} ${visitor.LastName}
+                  </td>
+                  <td class="pt-3 font-semibold">${visitor.Type}</td>
+                  <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                  <td
+                    class="pt-3 font-semibold"
+                    id="Status${visitor.RFID_NUM}"
+                  >
+                    <span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span
+                  </td>
+                  <td class="pt-3 font-semibold text-center">
+                    <button
+                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 cashierData"
+                      data-first-name="${visitor.FirstName}"
+                      data-last-name="${visitor.LastName}"
+                      data-id-type="${visitor.Type}"
+                      data-rfid="${visitor.RFID_NUM}"
+                    >
+                      Start
+                    </button>
+                  </td>
+                  <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
+
+                  <td class="pt-3 text-center font-semibold">
+                    <button
+                      class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                      id="row${visitor.Count}"
+                    >
+                      Contact to admin
+                    </button>
+                  </td>
+                </tr>
+                `
+                $("#dataTable").append(newData)
+                currentCount = count
+              }
+
+          },
+          error: function (xhr, status, error) {
+            console.log("Error", error);
+          },
+        })
+      }
+
+      const removing_visitor = () => {
+        $.ajax({
+          url: `${serverName}/egress`,
+          type:"GET",
+          headers: {
+            "X-CSRFToken": getCSRFToken(),
+          },
+          success: (response) => {
+            let newData = ''
+            var count = response.count
+            var info = response.update
+            console.log(count)
+            console.log(currentCount)
+            if(currentCount > count){
+              info.forEach((visitor) => {
+                newData +=  `
+                <tr class="pt-2">
+                  <td class="pt-3 font-semibold">
+                    ${visitor.FirstName} ${visitor.LastName}
+                  </td>
+                  <td class="pt-3 font-semibold">${visitor.Type}</td>
+                  <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                  <td
+                    class="pt-3 font-semibold"
+                    id="Status${visitor.RFID_NUM}"
+                  >
+                    ${
+                        visitor.Status == 'Pending' ?
+                        `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span
+                        >`: visitor.Status == "Ongoing" ?
+                      `<span class="bg-sky-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span` : `<span class="bg-green-200 px-3 py-1 rounded-full"
+                        >${visitor.Status}</span`
+                    }
+                  </td>
+                  <td class="pt-3 font-semibold text-center">
+                    <button
+                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 cashierData"
+                      data-first-name="${visitor.FirstName}"
+                      data-last-name="${visitor.LastName}"
+                      data-id-type="${visitor.Type}"
+                      data-rfid="${visitor.RFID_NUM}"
+                    >
+                      Start
+                    </button>
+                  </td>
+                  <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
+
+                  <td class="pt-3 text-center font-semibold">
+                    <button
+                      class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                      id="row${visitor.Count}"
+                    >
+                      Contact to admin
+                    </button>
+                  </td>
+                </tr>
+                `
+              })
+              $("#dataTable").html('')
+              $("#dataTable").append(newData)
+              currentCount = count
+            }
+          },
+          error: function (xhr, status, error) {
+            console.log("Error", error);
+          },
+        })
+      }
+      const addCashier = (firstName, lastName, idType, rfid, start, end) => {
         let htmlLine = "";
         $.ajax({
           url: `${serverName}/dataCashier`,
@@ -282,54 +561,52 @@
             first: firstName,
             last: lastName,
             id: idType,
+            rfidNum: rfid,
           }),
           headers: {
             "X-CSRFToken": getCSRFToken(), // Include the CSRF token
           },
-          success: (response) => {
-            if (response.status) {
+          success: (response10) => {
+            if (response10.status) {
               console.log("Already in the data");
-            } else if (!response.status) {
-              var data = response.data;
+            } else if (!response10.status) {
+              var data4 = response10.data;
+              console.log(data4)
+              console.log(`${data4.FirstName} ${data4.LastName}`)
               htmlLine += `
-                    <tr data-aos = "slide-up" class = "${data.LastName}_${data.ID}">
-                        <td class = 'pt-3 font-semibold'>${data.FirstName} ${data.LastName}</td>
-                        <td class = 'pt-3 font-semibold'>${data.Type}</td>
+                    <tr data-aos = "slide-up" class = "${data4.LastName}_${data4.ID}">
+                        <td class = 'pt-3 font-semibold'>${data4.FirstName} ${data4.LastName}</td>
+                        <td class = 'pt-3 font-semibold'>${data4.Type}</td>
                         <td class = 'pt-3 font-semibold'>
                                 <span class="bg-sky-200 px-3 py-1 rounded-full"
                                 >
-                                ${data.Status}
+                                ${data4.Status}
                                 </span
                             ></td>
-                        <td class = 'pt-3 font-semibold'>${data.Purpose}</td>
-                        <td class = 'pt-3 font-semibold'>${data.TimeOfTransaction}</td>
+                        <td class = 'pt-3 font-semibold'>${data4.Purpose}</td>
+                        <td class = 'pt-3 font-semibold'>${data4.TimeOfTransaction}</td>
                         <td></td>
                         <td class="pt-3 font-semibold text-center">
                             <button
                                 class="transition-all duration-500 text-base bg-green-400 px-4 rounded shadow hover:-translate-y-2 hover:scale-110 transacted"
-                                data-first-name="${data.FirstName}"
-                                data-last-name="${data.LastName}"
-                                data-id="${data.ID}"
+                                data-first-name="${data4.FirstName}"
+                                data-last-name="${data4.LastName}"
+                                data-rfid="${data4.RFID_NUM}"
+                                data-id= "${data4.ID}"
                             >
                                 Transaction Complete
                             </button>
                         </td>
                     </tr>
                 `;
-              var status = document.getElementById(
-                `${data.LastName}_${data.FirstName}`
-              );
-              console.log(status);
+              var status = document.getElementById(`Status${data4.RFID_NUM}`);
               status.innerHTML = `
                <td class="pt-3 font-semibold">
                   <span class="bg-sky-200 px-3 py-1 rounded-full"
-                    >${data.Status}</span
+                    >Ongoing</span
                   >
                 </td>
               `;
-              $(`.${data.LastName}_${data.ID}`).click(function () {
-                console.log("Working");
-              });
             }
 
             $("#cashierData").append(htmlLine);
@@ -340,7 +617,7 @@
         });
       };
 
-      const removeCashier = (firstName, LastName, id) => {
+      const removeCashier = (firstName, LastName, id, rfid, type) => {
         $.ajax({
           url: `${serverName}/removeCashier`,
           type: "POST",
@@ -348,6 +625,8 @@
             first: firstName,
             last: LastName,
             id_num: id,
+            rfid: rfid,
+            type: type,
           }),
           headers: {
             "X-CSRFToken": getCSRFToken(),
@@ -380,14 +659,15 @@
             const firstName = btn.dataset.firstName;
             const lastName = btn.dataset.lastName;
             const id = btn.dataset.id;
-            removeCashier(firstName, lastName, id);
+            const rfid_Num = btn.dataset.rfid;
+            const type = btn.dataset.type;
+            console.log(rfid_Num);
+            removeCashier(firstName, lastName, id, rfid_Num, type);
             $(`.${lastName}_${id}`).hide(1000);
             setTimeout(() => {
               $(`.${lastName}_${id}`).remove();
-            }, 2000);
-            const returnPending = document.getElementById(
-              `#${lastName}_${firstName}`
-            );
+            }, 1500);
+            const returnPending = document.getElementById(`Status${rfid_Num}`);
             console.log(returnPending);
             returnPending.innerHTML = `<span class="bg-orange-200 px-3 py-1 rounded-full"
                       >Pending</span
@@ -400,51 +680,33 @@
         .getElementById("dataTable")
         .addEventListener("click", (event) => {
           if (event.target.classList.contains("cashierData")) {
+            console.log("running");
             const btn = event.target;
             const firstName = btn.dataset.firstName;
             const lastName = btn.dataset.lastName;
             const idType = btn.dataset.idType;
-            addCashier(firstName, lastName, idType);
+            const rfid = btn.dataset.rfid;
+            console.log("Transacting");
+            addCashier(firstName, lastName, idType, rfid);
+            console.log("Starting");
           }
         });
-
-      // allbtn_transaction.forEach((btn) => {
-      //   console.log(btn.dataset);
-      //   btn.addEventListener("click", () => {
-      //     const firstName = btn.dataset.firstName;
-      //     const lastName = btn.dataset.lastName;
-      //     const id = btn.dataset.id;
-      //     console.log(lastName, id);
-      //     removeCashier(firstName, lastName, id);
-      //     $(`.${lastName}_${id}`).hide(1000);
-      //     setTimeout(() => {
-      //       $(`.${lastName}_${id}`).remove();
-      //     }, 2000);
-      //   });
-      // });
-
-      // setInterval(function () {
-      //   allbtn_transaction = document.querySelectorAll(".transacted");
-      //   allbtn_transaction.forEach((btn) => {
-      //     btn.addEventListener("click", () => {
-      //       const firstName = btn.dataset.firstName;
-      //       const lastName = btn.dataset.lastName;
-      //       const id = btn.dataset.id;
-      //       console.log(lastName, id);
-      //       removeCashier(firstName, lastName, id);
-      //       $(`.${lastName}_${id}`).hide(1000);
-      //       setTimeout(() => {
-      //         $(`.${lastName}_${id}`).remove();
-      //       }, 2000);
-      //     });
-      //   });
-      // }, 1000);
 
       const minimizeBtn = document.querySelector("#minimizeBtn");
       minimizeBtn.addEventListener("click", () => {
         document.querySelector("#sidebar").classList.toggle("w-0");
         document.querySelector("#sidebar").classList.toggle("overflow-hidden");
       });
+
+
+      document.querySelector("#searchBtn_visitor").addEventListener("click", ()=> {
+          searchFunction()
+
+      })
+      setInterval(() =>{
+        new_visitor()
+        removing_visitor()
+      }, 3000)
     </script>
   </body>
 </html>
