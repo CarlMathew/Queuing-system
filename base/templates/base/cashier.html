@@ -210,7 +210,9 @@
                     {{visitor.FirstName |title}} {{visitor.LastName|title}}
                   </td>
                   <td class="pt-3 font-semibold">{{visitor.Type}}</td>
-                  <td class="pt-3 font-semibold">{{visitor.Purpose}}</td>
+                  <td class="pt-3 font-semibold" id="pur{{visitor.RFID_NUM}}">
+                    {{visitor.Purpose}}
+                  </td>
                   <td
                     class="pt-3 font-semibold"
                     id="Status{{visitor.RFID_NUM}}"
@@ -232,6 +234,7 @@
                       data-last-name="{{visitor.LastName}}"
                       data-id-type="{{visitor.Type}}"
                       data-rfid="{{visitor.RFID_NUM}}"
+                      data-purpose="{{visitor.Status}}"
                     >
                       Start
                     </button>
@@ -265,6 +268,7 @@
       AOS.init();
     </script>
     <script>
+      // const serverName = "http://192.168.1.11:8000";
       const serverName = "http://127.0.0.1:8000";
       function getCSRFToken() {
         return document
@@ -293,7 +297,7 @@
                newData += `
                 <tr class="pt-2"  >
                   <td class="pt-3 font-semibold">
-                    ${visitor.FullName}
+                     ${visitor.FirstName} ${visitor.LastName}
                   </td>
                   <td class="pt-3 font-semibold">${visitor.Type}</td>
                   <td class="pt-3 font-semibold">${visitor.Purpose}</td>
@@ -318,6 +322,7 @@
                       data-last-name="${visitor.LastName}"
                       data-id-type="${visitor.Type}"
                       data-rfid="${visitor.RFID_NUM}"
+                      data-purpose = ${visitor.Status}
                     >
                       Start
                     </button>
@@ -371,7 +376,7 @@
                newData += `
                 <tr class="pt-2"  >
                   <td class="pt-3 font-semibold">
-                    ${visitor.FullName}
+                    ${visitor.FirstName} ${visitor.LastName}
                   </td>
                   <td class="pt-3 font-semibold">${visitor.Type}</td>
                   <td class="pt-3 font-semibold">${visitor.Purpose}</td>
@@ -396,6 +401,7 @@
                       data-last-name="${visitor.LastName}"
                       data-id-type="${visitor.Type}"
                       data-rfid="${visitor.RFID_NUM}"
+                      data-purpose = ${visitor.Status}
                     >
                       Start
                     </button>
@@ -455,6 +461,7 @@
                       data-last-name="${visitor.LastName}"
                       data-id-type="${visitor.Type}"
                       data-rfid="${visitor.RFID_NUM}"
+                      data-purpose = ${visitor.Status}
                     >
                       Start
                     </button>
@@ -525,6 +532,7 @@
                       data-last-name="${visitor.LastName}"
                       data-id-type="${visitor.Type}"
                       data-rfid="${visitor.RFID_NUM}"
+                      data-purpose = ${visitor.Status}
                     >
                       Start
                     </button>
@@ -566,13 +574,12 @@
           headers: {
             "X-CSRFToken": getCSRFToken(), // Include the CSRF token
           },
-          success: (response10) => {
-            if (response10.status) {
+          success: (response) => {
+            if (response.status) {
               console.log("Already in the data");
-            } else if (!response10.status) {
-              var data4 = response10.data;
-              console.log(data4)
-              console.log(`${data4.FirstName} ${data4.LastName}`)
+            } else if (!response.status) {
+              var data4 = response.data;
+
               htmlLine += `
                     <tr data-aos = "slide-up" class = "${data4.LastName}_${data4.ID}">
                         <td class = 'pt-3 font-semibold'>${data4.FirstName} ${data4.LastName}</td>
@@ -600,6 +607,9 @@
                     </tr>
                 `;
               var status = document.getElementById(`Status${data4.RFID_NUM}`);
+              const visitorPurpose2 = document.getElementById(
+                `pur${data4.RFID_NUM}`
+              );
               status.innerHTML = `
                <td class="pt-3 font-semibold">
                   <span class="bg-sky-200 px-3 py-1 rounded-full"
@@ -607,8 +617,8 @@
                   >
                 </td>
               `;
+              visitorPurpose2.innerHTML = "Cashier";
             }
-
             $("#cashierData").append(htmlLine);
           },
           error: function (xhr, status, error) {
@@ -641,16 +651,6 @@
       let allbtn_add = document.querySelectorAll(".cashierData");
       let allbtn_transaction = document.querySelectorAll(".transacted");
 
-      // allbtn_add.forEach((btn) => {
-      //   btn.addEventListener("click", (event) => {
-      //     console.log(allbtn_transaction);
-      //     const firstName = btn.dataset.firstName;
-      //     const lastName = btn.dataset.lastName;
-      //     const idType = btn.dataset.idType;
-      //     addCashier(firstName, lastName, idType);
-      //   });
-      // });
-      // Event delegation for cashier table
       document
         .getElementById("cashierData")
         .addEventListener("click", (event) => {
@@ -668,10 +668,11 @@
               $(`.${lastName}_${id}`).remove();
             }, 1500);
             const returnPending = document.getElementById(`Status${rfid_Num}`);
-            console.log(returnPending);
             returnPending.innerHTML = `<span class="bg-orange-200 px-3 py-1 rounded-full"
                       >Pending</span
                     >`;
+            const visitorPurpose = document.getElementById(`pur${rfid_Num}`);
+            visitorPurpose.innerHTML = "School";
           }
         });
 
@@ -686,9 +687,10 @@
             const lastName = btn.dataset.lastName;
             const idType = btn.dataset.idType;
             const rfid = btn.dataset.rfid;
-            console.log("Transacting");
-            addCashier(firstName, lastName, idType, rfid);
-            console.log("Starting");
+            const purpose = btn.dataset.purpose
+            console.log(purpose)
+            purpose == 'Pending' ? addCashier(firstName, lastName, idType, rfid) : "Already Transacting"
+
           }
         });
 

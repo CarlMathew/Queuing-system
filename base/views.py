@@ -12,6 +12,7 @@ def home(request):
     query = "SELECT *, row_number() OVER() AS Count FROM Visitors_Info"
     count = "SELECT COUNT(*) FROM Visitors_Info"
     count_cashier = execute_query('SELECT COUNT(*) AS Count FROM Visitors_Info WHERE Purpose = "Cashier"')[0]["Count"]
+    count_registrar = execute_query("SELECT COUNT(*) AS Count FROM visitors_info WHERE Purpose = 'Registrar'")[0]["Count"]
     result_visitor = execute_query(query)
     total_count = execute_query(count)[0]["COUNT(*)"]
     print(total_count)
@@ -20,7 +21,8 @@ def home(request):
     return render(request, "base/home1.html",
                   {"visitors": result_visitor,
                    "count": total_count,
-                   "count_cashier": count_cashier
+                   "count_cashier": count_cashier,
+                   "count_registrar": count_registrar
                   })
 
 
@@ -182,6 +184,81 @@ def id_type_search(request):
         except: 
             return JsonResponse({"data": "error"})
 
+
+def registrar(request):
+    query = "SELECT *, row_number() OVER() AS Count FROM Visitors_Info"
+    count = "SELECT COUNT(*) FROM Visitors_Info"
+    registrar_query = "SELECT * FROM trn_registrar"
+    result_visitor = execute_query(query)
+    result_registrar = execute_query(registrar_query)
+    total_count = execute_query(count)[0]["COUNT(*)"]
+    print(result_registrar)
+    
+    return render(request, 'base/registrar.html',
+                {"visitors": result_visitor,
+                "registrar": result_registrar,
+                "count": total_count})
+
+def addRegistrar(request):
+    transactIn = str(datetime.now())[:-3]
+    purpose = "Registrar"
+    Status = "Ongoing"
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            first_name = data.get("first")
+            last_name = data.get("last")
+            idType: str = data.get("id")
+            rfidnum: str = data.get("rfidNum")
+            selectQuery = f'SELECT * FROM trn_registrar WHERE RFID_NUM = "{rfidnum}"'
+            updateQuery = f'UPDATE visitors_info SET STATUS = "Ongoing", Purpose = "Registrar" WHERE RFID_NUM = "{rfidnum}"'
+            results = execute_query(selectQuery)
+            if results:
+                data = {"status": True}
+            elif not results:
+                insertQuery = f"""
+                INSERT INTO trn_registrar(RFID_NUM, FirstName, LastName, Type, Purpose, Status, TimeOfTransaction)
+                VALUES ("{rfidnum}","{first_name}", "{last_name}", "{idType}", "{purpose}", "{Status}", "{transactIn}")
+                """
+                changeQuery(insertQuery)
+                changeQuery(updateQuery)
+                print("Successfully Inserted")
+                visitor_info = execute_query(selectQuery)
+                data = {"status": False,
+                        "data": visitor_info[0]}
+            return JsonResponse(data)
+        
+        except:
+            return JsonResponse({"Status": "Error fetching Data"})
+
+def removeRegistrar(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        rfid = data.get("rfid", '')
+        deleteQuery = f"DELETE FROM trn_registrar WHERE RFID_NUM = '{rfid}'"
+        updateQuery = f"UPDATE visitors_info SET Status = 'Pending', Purpose = 'School' WHERE RFID_NUM = '{rfid}' "
+        insertQuery = f"""
+                        INSERT INTO trn_registrar_history ( RFID_NUM, FirstName, LastName, Type, Purpose, Status, TimeOfTransaction)
+                        SELECT RFID_NUM, FirstName, LastName, Type, Purpose, Status, TimeOfTransaction FROM trn_registrar WHERE RFID_NUM = '{rfid}'
+                       """
+        changeQuery(insertQuery)
+        changeQuery(deleteQuery)
+        changeQuery(updateQuery)    
+    return JsonResponse({"success": "fetch"})
+
+
+        
+def new_trn_registrar(request):
+    if request.method == "GET":
+        count_registrar = "SELECT COUNT(*) FROM trn_registrar"
+        visitor_table = "SELECT * FROM visitors_info"
+        count = execute_query(count_registrar)
+        table_registrar = execute_query(visitor_table)
+
+        return JsonResponse({
+            "count_registrar": count,
+            "registrar": table_registrar
+        })
 
 def EmailSending(request):
     if request.method == "POST":

@@ -13,6 +13,10 @@ urlpatterns = [
     path("new_trn_cashier", view=views.new_trn_cashier),
     path("egress", view = views.egress_count),
     path('search_visitor', view=views.search_visitor),
-    path('id_type_search', view=views.id_type_search) 
+    path('id_type_search', view=views.id_type_search),
+    path("registrar", view=views.registrar),
+    path("addRegistrar", view=views.addRegistrar),
+    path("removeRegistrar", view = views.removeRegistrar),
+    path("new_trn_registrar", view= views.new_trn_registrar)
 ]
 

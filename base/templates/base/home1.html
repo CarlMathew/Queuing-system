@@ -260,12 +260,15 @@
                   .querySelector('meta[name="csrf-token"]')
                   .getAttribute("content");
               }
+              // const server = "http://192.168.1.11:8000";
+
               const server = "http://127.0.0.1:8000"
 
               const minimizeBtn = document.querySelector("#minimizeBtn");
               var currentCount = {{ count|safe }}
               var currentCountCashier = {{ count_cashier|safe }}
-              console.log(currentCountCashier)
+              var currentCountRegistrar = {{ count_registrar|safe }}
+              console.log(currentCountRegistrar)
               var tblData = document.querySelector("#dataTable")
 
               minimizeBtn.addEventListener("click", () => {
@@ -458,7 +461,6 @@
                         `
 
                       })
-                      console.log(tblData)
                       $("#dataTable").append(tblData)
                       currentCountCashier = Number(response.cashier_count)
                     }
@@ -472,10 +474,69 @@
                 })
               }
 
+              const new_registrar = () => {
+                $.ajax({
+                  url: `${server}/new_trn_registrar`,
+                  type: 'GET',
+                  headers: {
+                    "X-CSRFToken": getCSRFToken(),
+                  },
+                  success: (response) => {
+                    var count = response.count_registrar[0]["COUNT(*)"]
+                    var tblData = ''
+
+                    console.log(response)
+                    if (Number(count) != Number(currentCountRegistrar)){
+                        $("#dataTable").html('')
+                        console.log("Working")
+                        var visitors = response.registrar
+                        console.log(visitors)
+                        visitors.forEach((visitor) => {
+                        var visitorStatus = (visitor.Status == "Pending") ?
+                        `<span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span>` :
+                        `<span class="bg-sky-200 px-3 py-1 rounded-full">${visitor.Status}</span>`
+                        tblData += `
+                          <tr class="pt-2">
+                            <td class="pt-3 font-semibold">
+                              ${visitor.FirstName} ${visitor.LastName}
+                            </td>s
+                            <td class="pt-3 font-semibold">${visitor.Type}</td>
+                            <td class="pt-3 font-semibold" id="Status${visitor.RFID_NUM}">
+                              ${visitorStatus}
+                            </td>
+                            <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                            <td class="pt-3 font-semibold">${visitor.LogIn}</td>
+                            <td class="pt-3 font-semibold">Time</td>
+                            <td class="pt-3 text-center font-semibold">
+                              <button
+                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                                id="row${visitor.Count}"
+                              >
+                                Contact to admin
+                              </button>
+                            </td>
+                          </tr>
+                        `
+                        })
+
+                    }
+
+
+                    $("#dataTable").append(tblData)
+                    currentCountRegistrar = Number(count)
+
+
+                  }, error: function (xhr, status, error) {
+                    console.log("Error", error);
+                  }
+                })
+              }
+
              setInterval(function(){
                 new_visitor();
                 new_cashier();
-                removing_visitor()
+                removing_visitor();
+                new_registrar();
               }, 3000)
 
 

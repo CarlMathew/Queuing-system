@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css"
+    />
+    <script
+      src="https://kit.fontawesome.com/6579bcae86.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="flex flex-row">
+      <div
+        id="sidebar"
+        class="transition-all duration-500 w-96 bg-gray-200 text-black"
+      >
+        {% include "./includes/sidebar.html" %}
+      </div>
+      <div id="main" class="w-full p-3">
+        <div class="flex flex-row justify-between">
+          <div class="font-bold text-3xl py-5">
+            <i
+              class="transition-all duration-700 fa-solid fa-bars cursor-pointer hover:-translate-y-1"
+              id="minimizeBtn"
+            ></i>
+            Welcome Users
+          </div>
+          <div class="font-bold text-3xl py-5">
+            <h2>Total Visitors</h2>
+            <h2 class="text-center">
+              <i class="fa-solid fa-users"></i>
+              <span id="total_visitors">0</span>
+            </h2>
+          </div>
+        </div>
+        <div class="mt-5">
+          <h1 class="text-4xl w-full text-center font-bold">
+            <i class="fa-solid fa-hand-holding-dollar mx-1"></i> Registrar
+            Transaction
+          </h1>
+          <div class="flex flex-row mt-7 gap-7">
+            <div>
+              <p class="inline font-bold">ID Type:</p>
+              <select id="typeInput" class="border-2 rounded shadow inline">
+                <option value="1">All</option>
+                <option value="2">National ID</option>
+                <option value="3">HUMID ID</option>
+                <option value="4">Driver's License</option>
+              </select>
+            </div>
+            <div>
+              <p class="font-bold inline">Search:</p>
+              <input
+                type="text"
+                class="border-2 shadow rounded w-400"
+                placeholder="Enter the Name"
+                id="searchInput"
+              />
+              <button class="px-2 bg-black text-white rounded shadow">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card mt-5">
+          <table class="w-full">
+            <thead class="border-b-2">
+              <tr>
+                <th class="text-start">
+                  <i class="fa-solid fa-user"></i> Full Name
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-id-card-clip"></i> ID Type
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-cash-register"></i> Status
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-book"></i> Purpose
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-clock"></i> Start of Transaction
+                </th>
+                <th class="text-start">
+                  <i class="fa-solid fa-clock"></i> End of Transaction
+                </th>
+
+                <th class="text-center">Done Transaction?</th>
+              </tr>
+            </thead>
+            <tbody id="registrarData">
+              {% for visitor in registrar %}
+              <tr
+                class="pt-2 {{visitor.LastName}}_{{visitor.ID}}"
+                data-aos="slide-up"
+                id="visi{{visitor.RFID_NUM}}"
+              >
+                <td class="pt-3 font-semibold">
+                  {{visitor.FirstName}} {{visitor.LastName}}
+                </td>
+                <td class="pt-3 font-semibold">{{visitor.Type}}</td>
+                <td class="pt-3 font-semibold">
+                  <span class="bg-sky-200 px-3 py-1 rounded-full"
+                    >{{visitor.Status}}</span
+                  >
+                </td>
+                <td class="pt-3 font-semibold">{{visitor.Purpose}}</td>
+                <td class="pt-3 font-semibold">
+                  {{visitor.TimeOfTransaction}}
+                </td>
+                <td></td>
+                <td class="pt-3 font-semibold text-center">
+                  <button
+                    class="transition-all duration-500 text-base bg-green-400 px-4 rounded shadow hover:-translate-y-2 hover:scale-110 transacted"
+                    data-first-name="{{visitor.FirstName}}"
+                    data-last-name="{{visitor.LastName}}"
+                    data-rfid="{{visitor.RFID_NUM}}"
+                    data-id="{{visitor.ID}}"
+                    data-type="{{visitor.Type}}"
+                  >
+                    Transaction Complete
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <!-- Add this closing tag -->
+        </div>
+        <div class="mt-30">
+          <h2 class="w-full text-4xl text-center font-extrabold mt-20">
+            <i class="fa-solid fa-people-group mx-1"></i> Visitor's Table
+          </h2>
+          <div class="flex flex-row mt-7 gap-7">
+            <div>
+              <p class="inline font-bold">ID Type:</p>
+              <select class="border-2 rounded shadow inline" id="idTypeVisitor">
+                <option value="All">All</option>
+                <option value="Philippine Identification Card">
+                  National ID
+                </option>
+                <option value="Unified Multi-Purpose Id">HUMID ID</option>
+                <option value="Drivers License">Driver's License</option>
+              </select>
+            </div>
+            <div>
+              <p class="font-bold inline">Search:</p>
+              <input
+                type="text"
+                class="border-2 shadow rounded w-400"
+                placeholder="Enter the Name"
+                id="searchInputVisitor"
+              />
+              <button
+                class="px-2 bg-black text-white rounded shadow"
+                id="searchBtn_visitor"
+              >
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+            </div>
+          </div>
+          <div class="mt-5 transition-all duration-300" id="visitorTable">
+            <table class="w-full mt-5">
+              <thead class="border-b-2">
+                <tr>
+                  <th class="text-start">
+                    <i class="fa-solid fa-user"></i> Full Name
+                  </th>
+                  <th class="text-start">
+                    <i class="fa-solid fa-id-card-clip"></i> ID Type
+                  </th>
+                  <th class="text-start">
+                    <i class="fa-solid fa-id-card-clip"></i> Purpose
+                  </th>
+                  <th class="text-start">
+                    <i class="fa-solid fa-cash-register"></i> Status
+                  </th>
+                  <th class="text-center">
+                    <i class="fa-solid fa-book"></i> Start Transaction
+                  </th>
+                  <th class="text-start">
+                    <i class="fa-solid fa-clock"></i> Date and Time
+                  </th>
+                  <th class="text-center">Missing Visitors card?</th>
+                </tr>
+              </thead>
+              <tbody id="dataTable">
+                {% for visitor in visitors%}
+                <tr class="pt-2">
+                  <td class="pt-3 font-semibold">
+                    {{visitor.FirstName |title}} {{visitor.LastName|title}}
+                  </td>
+                  <td class="pt-3 font-semibold">{{visitor.Type}}</td>
+                  <td class="pt-3 font-semibold" id="pur{{visitor.RFID_NUM}}">
+                    {{visitor.Purpose}}
+                  </td>
+                  <td class="pt-3 font-semibold" id="Stat{{visitor.RFID_NUM}}">
+                    {% if visitor.Status == "Pending" %}
+                    <span class="bg-orange-200 px-3 py-1 rounded-full"
+                      >{{visitor.Status}}</span
+                    >
+                    {% elif visitor.Status == "Ongoing" %}
+                    <span class="bg-sky-200 px-3 py-1 rounded-full"
+                      >{{visitor.Status}}</span
+                    >
+                    {% endif %}
+                  </td>
+                  <td class="pt-3 font-semibold text-center">
+                    <button
+                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 registrarBtn"
+                      data-first-name="{{visitor.FirstName}}"
+                      data-last-name="{{visitor.LastName}}"
+                      data-id-type="{{visitor.Type}}"
+                      data-rfid="{{visitor.RFID_NUM}}"
+                      data-purpose="{{visitor.Status}}"
+                    >
+                      Start
+                    </button>
+                  </td>
+                  <td class="pt-3 font-semibold">{{visitor.LogIn}}</td>
+
+                  <td class="pt-3 text-center font-semibold">
+                    <button
+                      class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                      id="row{{visitor.Count}}"
+                    >
+                      Contact to admin
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.js"
+      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init();
+    </script>
+    <script>
+      // const serverName = "http://192.168.1.11:8000";
+      const serverName = "http://127.0.0.1:8000";
+      function getCSRFToken() {
+        return document
+          .querySelector('meta[name="csrf-token"]')
+          .getAttribute("content");
+      }
+
+      const removeRegistrar = (rfid) => {
+        $.ajax({
+          url: `${serverName}/removeRegistrar`,
+          type: "POST",
+          data: JSON.stringify({
+            rfid: rfid,
+          }),
+          headers: {
+            "X-CSRFToken": getCSRFToken(), // Include the CSRF token
+          },
+          success: (response) => {},
+          error: function (xhr, status, error) {
+            console.log("Error", error);
+          },
+        });
+      };
+
+      const addRegistrar = (firstName, lastName, idType, rfid) => {
+        let htmlLine = "";
+        $.ajax({
+          url: `${serverName}/addRegistrar`,
+          type: "POST",
+          data: JSON.stringify({
+            first: firstName,
+            last: lastName,
+            id: idType,
+            rfidNum: rfid,
+          }),
+          headers: {
+            "X-CSRFToken": getCSRFToken(), // Include the CSRF token
+          },
+          success: (response) => {
+            if (response.status) {
+              console.log("Already in the data");
+            } else if (!response.status) {
+              var data4 = response.data;
+
+              htmlLine += `
+                      <tr data-aos = "slide-up" class = "${data4.LastName}_${data4.ID}" id = "visi${data4.RFID_NUM}">
+                          <td class = 'pt-3 font-semibold'>${data4.FirstName} ${data4.LastName}</td>
+                          <td class = 'pt-3 font-semibold'>${data4.Type}</td>
+                          <td class = 'pt-3 font-semibold'>
+                                  <span class="bg-sky-200 px-3 py-1 rounded-full"
+                                  >
+                                  ${data4.Status}
+                                  </span
+                              ></td>
+                          <td class = 'pt-3 font-semibold'>${data4.Purpose}</td>
+                          <td class = 'pt-3 font-semibold'>${data4.TimeOfTransaction}</td>
+                          <td></td>
+                          <td class="pt-3 font-semibold text-center">
+                              <button
+                                  class="transition-all duration-500 text-base bg-green-400 px-4 rounded shadow hover:-translate-y-2 hover:scale-110 transacted"
+                                  data-first-name="${data4.FirstName}"
+                                  data-last-name="${data4.LastName}"
+                                  data-rfid="${data4.RFID_NUM}"
+                                  data-id= "${data4.ID}"
+                              >
+                                  Transaction Complete
+                              </button>
+                          </td>
+                      </tr>
+                  `;
+              var status = document.getElementById(`Stat${data4.RFID_NUM}`);
+              const visitorPurpose2 = document.getElementById(
+                `pur${data4.RFID_NUM}`
+              );
+              status.innerHTML = `
+                <td class="pt-3 font-semibold">
+                    <span class="bg-sky-200 px-3 py-1 rounded-full"
+                      >Ongoing</span
+                    >
+                  </td>
+                `;
+              visitorPurpose2.innerHTML = "Registrar";
+            }
+            $("#registrarData").append(htmlLine);
+          },
+          error: function (xhr, status, error) {
+            console.log("Error", error);
+          },
+        });
+      };
+
+      const minimizeBtn = document.querySelector("#minimizeBtn");
+      minimizeBtn.addEventListener("click", () => {
+        document.querySelector("#sidebar").classList.toggle("w-0");
+        document.querySelector("#sidebar").classList.toggle("overflow-hidden");
+      });
+
+      document
+        .querySelector("#registrarData")
+        .addEventListener("click", (e) => {
+          if (e.target.classList.contains("transacted")) {
+            const btn = e.target.dataset;
+            const rfid = btn.rfid;
+            removeRegistrar(rfid);
+            $(`#visi${rfid}`).hide(1000, function () {
+              // Remove the element after hiding
+              $(this).remove();
+            });
+            const returnPending = document.getElementById(`Stat${rfid}`);
+            returnPending.innerHTML = `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                      >Pending</span
+                    >`;
+            console.log("removing");
+            const visitorPurpose = document.getElementById(`pur${rfid}`);
+            visitorPurpose.innerHTML = "School";
+          }
+        });
+
+      document.querySelector("#visitorTable").addEventListener("click", (e) => {
+        if (e.target.classList.contains("registrarBtn")) {
+          // (firstName, lastName, idType, rfid)
+          const btn = e.target.dataset;
+          const firstName = btn.firstName;
+          const lastName = btn.lastName;
+          const idType = btn.idType;
+          const rfid = btn.rfid;
+          const purpose = btn.purpose;
+
+          purpose == "Pending"
+            ? addRegistrar(firstName, lastName, idType, rfid)
+            : "Already Transacting";
+        }
+      });
+    </script>
+  </body>
+</html>
