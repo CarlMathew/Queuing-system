@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-l^&w-7tl09sw07ae3u@o-@^ver^j(#98xo(96q535#6!1$g$qd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.4' , '127.0.0.1', '*']
+ALLOWED_HOSTS = ['192.168.1.24' , '127.0.0.1', '*', "192.168.1.10"]
 
 
 # Application definition
@@ -40,11 +40,20 @@ INSTALLED_APPS = [
     "base"
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://192.168.1.24:8000',
+    'http://127.0.0.1:8000',  # Add any other origins you trust
+    'http://localhost:8000',
+    "http://192.168.1.10:8000"   # Add localhost for local testing
+]
+
+CSRF_COOKIE_DOMAIN = None 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',  # CSRF middleware is enabled
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

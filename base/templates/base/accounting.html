@@ -49,7 +49,7 @@
         </div>
         <div class="mt-5">
           <h1 class="text-4xl w-full text-center font-bold">
-            <i class="fa-solid fa-hand-holding-dollar mx-1"></i> Registrar
+            <i class="fa-solid fa-hand-holding-dollar mx-1"></i> Accounting
             Transaction
           </h1>
           <div class="flex flex-row mt-7 gap-7">
@@ -102,11 +102,10 @@
                 <th class="text-center">Done Transaction?</th>
               </tr>
             </thead>
-            <tbody id="registrarData">
-              {% for visitor in registrar %}
+            <tbody id="accountingData">
+              {% for visitor in accounting %}
               <tr
                 class="pt-2 {{visitor.LastName}}_{{visitor.ID}}"
-                data-aos="slide-up"
                 id="visi{{visitor.RFID_NUM}}"
               >
                 <td class="pt-3 font-semibold">
@@ -139,7 +138,6 @@
               {% endfor %}
             </tbody>
           </table>
-          <!-- Add this closing tag -->
         </div>
         <div class="mt-30">
           <h2 class="w-full text-4xl text-center font-extrabold mt-20">
@@ -208,7 +206,10 @@
                   <td class="pt-3 font-semibold" id="pur{{visitor.RFID_NUM}}">
                     {{visitor.Purpose}}
                   </td>
-                  <td class="pt-3 font-semibold" id="Stat{{visitor.RFID_NUM}}">
+                  <td
+                    class="pt-3 font-semibold"
+                    id="Status{{visitor.RFID_NUM}}"
+                  >
                     {% if visitor.Status == "Pending" %}
                     <span class="bg-orange-200 px-3 py-1 rounded-full"
                       >{{visitor.Status}}</span
@@ -221,7 +222,7 @@
                   </td>
                   <td class="pt-3 font-semibold text-center">
                     <button
-                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 registrarBtn"
+                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 accountingBtn"
                       data-first-name="{{visitor.FirstName}}"
                       data-last-name="{{visitor.LastName}}"
                       data-id-type="{{visitor.Type}}"
@@ -254,38 +255,272 @@
       integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
       crossorigin="anonymous"
     ></script>
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-      AOS.init();
-    </script>
-    <script>
-
-      let cashierCount = {{ cashier_count|safe }}
-      let currentCount = {{ count|safe }}
-      const serverName = "http://192.168.1.10:8000";
-      // const serverName = "http://127.0.0.1:8000";
-      function getCSRFToken() {
+            let currentCount = {{ count|safe }}
+            let cashierCount = {{ cashier|safe }}
+            let currentRegistrarCount = {{ registrar|safe }}
+            const minimizeBtn = document.querySelector("#minimizeBtn");
+            minimizeBtn.addEventListener("click", () => {
+              document.querySelector("#sidebar").classList.toggle("w-0");
+              document.querySelector("#sidebar").classList.toggle("overflow-hidden");
+            });
+            // const serverName = "http://127.0.0.1:8000";
+            const serverName = "http://192.168.1.10:8000";
+            function getCSRFToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       }
 
-      const removeRegistrar = (rfid) => {
-        $.ajax({
-          url: `${serverName}/removeRegistrar`,
-          type: "POST",
-          data: JSON.stringify({
-            rfid: rfid,
-          }),
-          headers: {
-            "X-CSRFToken": getCSRFToken(), // Include the CSRF token
-          },
-          success: (response) => {},
-          error: function (xhr, status, error) {
-            console.log("Error", error);
-          },
-        });
-      };
 
-      const new_cashier = () => {
+            const addAccounting = (firstName, lastName, idType, rfid) => {
+              let htmlLine2 = "";
+              $.ajax({
+                url: `${serverName}/addAccounting`,
+                type: "POST",
+                data: JSON.stringify({
+                  first: firstName,
+                  last: lastName,
+                  id: idType,
+                  rfidNum: rfid,
+                }),
+                headers: {
+                  "X-CSRFToken": getCSRFToken(), // Include the CSRF token
+                },
+                success: (response) => {
+                  console.log("working");
+                  if (response.status) {
+                    console.log("Already in the data");
+                  } else if (!response.status) {
+                    var data4 = response.data;
+
+                    htmlLine2 += `
+                            <tr class = "${data4.LastName}_${data4.ID}" id = "visi${data4.RFID_NUM}">
+                                <td class = 'pt-3 font-semibold'>${data4.FirstName} ${data4.LastName}</td>
+                                <td class = 'pt-3 font-semibold'>${data4.Type}</td>
+                                <td class = 'pt-3 font-semibold'>
+                                        <span class="bg-sky-200 px-3 py-1 rounded-full"
+                                        >
+                                        ${data4.Status}
+                                        </span
+                                    ></td>
+                                <td class = 'pt-3 font-semibold'>${data4.Purpose}</td>
+                                <td class = 'pt-3 font-semibold'>${data4.TimeOfTransaction}</td>
+                                <td></td>
+                                <td class="pt-3 font-semibold text-center">
+                                    <button
+                                        class="transition-all duration-500 text-base bg-green-400 px-4 rounded shadow hover:-translate-y-2 hover:scale-110 transacted"
+                                        data-first-name="${data4.FirstName}"
+                                        data-last-name="${data4.LastName}"
+                                        data-rfid="${data4.RFID_NUM}"
+                                        data-id= "${data4.ID}"
+                                    >
+                                        Transaction Complete
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                  }
+                  $("#accountingData").append(htmlLine2);
+                },
+                error: function (xhr, status, error) {
+                  console.log("Error", error);
+                },
+              });
+            };
+
+            const removeAccounting = (rfid) => {
+              $.ajax({
+                url: `${serverName}/removeAccounting`,
+                type: "POST",
+                data: JSON.stringify({
+                  rfid: rfid,
+                }),
+                headers: {
+                  "X-CSRFToken": getCSRFToken(), // Include the CSRF token
+                },
+                success: (response) => {},
+                error: function (xhr, status, error) {
+                  console.log("Error", error);
+                },
+              });
+            };
+
+            document.querySelector("#dataTable").addEventListener("click", (e) => {
+              if (e.target.classList.contains("accountingBtn")) {
+                const btn = e.target.dataset;
+                const firstName = btn.firstName;
+                const lastName = btn.lastName;
+                const idType = btn.idType;
+                const rfid = btn.rfid;
+                const purpose = btn.purpose;
+
+                if (purpose == "Pending"){
+                  addAccounting(firstName, lastName, idType, rfid)
+                  const returnPending = document.getElementById(`Status${rfid}`);
+                  returnPending.innerHTML = `
+                  <span class="bg-sky-200 px-3 py-1 rounded-full"
+                    >Ongoing</span
+                  >`;
+                } else {
+                  "Already Transacting";
+                }
+              }
+            });
+
+            document
+              .querySelector("#accountingData")
+              .addEventListener("click", (e) => {
+                if (e.target.classList.contains("transacted")) {
+                  const btn = e.target.dataset;
+                  const rfid = btn.rfid;
+                  removeAccounting(rfid);
+                  $(`#visi${rfid}`).hide(1000, function () {
+                    // Remove the element after hiding
+                    $(this).remove();
+                  });
+                  const returnPending = document.getElementById(`Status${rfid}`);
+                  returnPending.innerHTML = `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                            >Pending</span
+                          >`;
+                  console.log("removing");
+                  const visitorPurpose = document.getElementById(`pur${rfid}`);
+                  visitorPurpose.innerHTML = "School";
+                }
+              });
+
+            const new_visitor = () => {
+              $.ajax({
+                url: `${serverName}/insert`,
+                type: "POST",
+                headers: {
+                  "X-CSRFToken": getCSRFToken(),
+                },
+                success: (response) => {
+                  tblData = document.querySelector("#dataTable");
+                  var count = response.count;
+                  var visitor = response.visitor;
+                  let newData = "";
+
+                  if (count > currentCount) {
+                    newData += `
+                      <tr class="pt-2">
+                        <td class="pt-3 font-semibold">
+                          ${visitor.FirstName} ${visitor.LastName}
+                        </td>
+                        <td class="pt-3 font-semibold">${visitor.Type}</td>
+                        <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                        <td
+                          class="pt-3 font-semibold"
+                          id="Status${visitor.RFID_NUM}"
+                        >
+                          <span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span
+                        </td>
+                        <td class="pt-3 font-semibold text-center">
+                          <button
+                            class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 accountingBtn"
+                            data-first-name="${visitor.FirstName}"
+                            data-last-name="${visitor.LastName}"
+                            data-id-type="${visitor.Type}"
+                            data-rfid="${visitor.RFID_NUM}"
+                            data-purpose = ${visitor.Status}
+                          >
+                            Start
+                          </button>
+                        </td>
+                        <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
+
+                        <td class="pt-3 text-center font-semibold">
+                          <button
+                            class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                            id="row${visitor.Count}"
+                          >
+                            Contact to admin
+                          </button>
+                        </td>
+                      </tr>
+                      `;
+                    $("#dataTable").append(newData);
+                    currentCount = count;
+                  }
+                },
+                error: function (xhr, status, error) {
+                  console.log("Error", error);
+                },
+              });
+            };
+
+            const removing_visitor = () => {
+              $.ajax({
+                url: `${serverName}/egress`,
+                type: "GET",
+                headers: {
+                  "X-CSRFToken": getCSRFToken(),
+                },
+                success: (response) => {
+                  let newData = "";
+                  var count = response.count;
+                  var info = response.update;
+                  if (currentCount > count) {
+                    info.forEach((visitor) => {
+                      newData += `
+                      <tr class="pt-2">
+                        <td class="pt-3 font-semibold">
+                          ${visitor.FirstName} ${visitor.LastName}
+                        </td>
+                        <td class="pt-3 font-semibold">${visitor.Type}</td>
+                        <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                        <td
+                          class="pt-3 font-semibold"
+                          id="Status${visitor.RFID_NUM}"
+                        >
+                          ${
+                            visitor.Status == "Pending"
+                              ? `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                              >${visitor.Status}</span
+                              >`
+                              : visitor.Status == "Ongoing"
+                              ? `<span class="bg-sky-200 px-3 py-1 rounded-full"
+                              >${visitor.Status}</span`
+                              : `<span class="bg-green-200 px-3 py-1 rounded-full"
+                              >${visitor.Status}</span`
+                          }
+                        </td>
+                        <td class="pt-3 font-semibold text-center">
+                          <button
+                            class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 accountingBtn"
+                            data-first-name="${visitor.FirstName}"
+                            data-last-name="${visitor.LastName}"
+                            data-id-type="${visitor.Type}"
+                            data-rfid="${visitor.RFID_NUM}"
+                            data-purpose = ${visitor.Status}
+                          >
+                            Start
+                          </button>
+                        </td>
+                        <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
+
+                        <td class="pt-3 text-center font-semibold">
+                          <button
+                            class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                            id="row${visitor.Count}"
+                          >
+                            Contact to admin
+                          </button>
+                        </td>
+                      </tr>
+                      `;
+                    });
+                    $("#dataTable").html("");
+                    $("#dataTable").append(newData);
+                    currentCount = count;
+                  }
+                },
+                error: function (xhr, status, error) {
+                  console.log("Error", error);
+                },
+              });
+            };
+
+        const new_cashier = () => {
         let htmlLine = "";
         $.ajax({
           url: `${serverName}/new_trn_cashier`,
@@ -307,7 +542,7 @@
                     ${visitor.FirstName} ${visitor.LastName}
                   </td>
                   <td class="pt-3 font-semibold">${visitor.Type}</td>
-                  <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                  <td class="pt-3 font-semibold" id = "pur${visitor.RFID_NUM}">${visitor.Purpose}</td>
                   <td
                     class="pt-3 font-semibold"
                     id="Status${visitor.RFID_NUM}"
@@ -316,7 +551,7 @@
                   </td>
                   <td class="pt-3 font-semibold text-center">
                     <button
-                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 registrarBtn"
+                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 accountingBtn"
                       data-first-name="${visitor.FirstName}"
                       data-last-name="${visitor.LastName}"
                       data-id-type="${visitor.Type}"
@@ -349,259 +584,20 @@
           },
         });
       };
-
-      const addRegistrar = (firstName, lastName, idType, rfid) => {
-        let htmlLine2 = "";
-        $.ajax({
-          url: `${serverName}/addRegistrar`,
-          type: "POST",
-          data: JSON.stringify({
-            first: firstName,
-            last: lastName,
-            id: idType,
-            rfidNum: rfid,
-          }),
-          headers: {
-            "X-CSRFToken": getCSRFToken(), // Include the CSRF token
-          },
-          success: (response) => {
-            if (response.status) {
-              console.log("Already in the data");
-            } else if (!response.status) {
-              var data4 = response.data;
-
-              htmlLine2 += `
-                      <tr data-aos = "slide-up" class = "${data4.LastName}_${data4.ID}" id = "visi${data4.RFID_NUM}">
-                          <td class = 'pt-3 font-semibold'>${data4.FirstName} ${data4.LastName}</td>
-                          <td class = 'pt-3 font-semibold'>${data4.Type}</td>
-                          <td class = 'pt-3 font-semibold'>
-                                  <span class="bg-sky-200 px-3 py-1 rounded-full"
-                                  >
-                                  ${data4.Status}
-                                  </span
-                              ></td>
-                          <td class = 'pt-3 font-semibold'>${data4.Purpose}</td>
-                          <td class = 'pt-3 font-semibold'>${data4.TimeOfTransaction}</td>
-                          <td></td>
-                          <td class="pt-3 font-semibold text-center">
-                              <button
-                                  class="transition-all duration-500 text-base bg-green-400 px-4 rounded shadow hover:-translate-y-2 hover:scale-110 transacted"
-                                  data-first-name="${data4.FirstName}"
-                                  data-last-name="${data4.LastName}"
-                                  data-rfid="${data4.RFID_NUM}"
-                                  data-id= "${data4.ID}"
-                              >
-                                  Transaction Complete
-                              </button>
-                          </td>
-                      </tr>
-                  `;
-              // var status = document.getElementById(`Stat${data4.RFID_NUM}`);
-
-              // status.innerHTML = `
-              //   <td class="pt-3 font-semibold">
-              //       <span class="bg-sky-200 px-3 py-1 rounded-full"
-              //         >Ongoing</span
-              //       >
-              //     </td>
-              //   `;
-              // visitorPurpose2.innerHTML = "Registrar";
-            }
-            $("#registrarData").append(htmlLine2);
-          },
-          error: function (xhr, status, error) {
-            console.log("Error", error);
-          },
-        });
-      };
-
-
-      const new_visitor = () => {
-        $.ajax({
-          url: `${serverName}/insert`,
-          type:"POST",
-          headers: {
-              "X-CSRFToken": getCSRFToken(),
-          },
-          success: (response) => {
-              tblData = document.querySelector("#dataTable")
-              var count = response.count
-              var visitor = response.visitor
-              let newData = ''
-
-              if(count > currentCount){
-                newData += `
-                <tr class="pt-2">
-                  <td class="pt-3 font-semibold">
-                    ${visitor.FirstName} ${visitor.LastName}
-                  </td>
-                  <td class="pt-3 font-semibold">${visitor.Type}</td>
-                  <td class="pt-3 font-semibold">${visitor.Purpose}</td>
-                  <td
-                    class="pt-3 font-semibold"
-                    id="Status${visitor.RFID_NUM}"
-                  >
-                    <span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span
-                  </td>
-                  <td class="pt-3 font-semibold text-center">
-                    <button
-                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 registrarBtn"
-                      data-first-name="${visitor.FirstName}"
-                      data-last-name="${visitor.LastName}"
-                      data-id-type="${visitor.Type}"
-                      data-rfid="${visitor.RFID_NUM}"
-                      data-purpose = ${visitor.Status}
-                    >
-                      Start
-                    </button>
-                  </td>
-                  <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
-
-                  <td class="pt-3 text-center font-semibold">
-                    <button
-                      class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
-                      id="row${visitor.Count}"
-                    >
-                      Contact to admin
-                    </button>
-                  </td>
-                </tr>
-                `
-                $("#dataTable").append(newData)
-                currentCount = count
-              }
-
-          },
-          error: function (xhr, status, error) {
-            console.log("Error", error);
-          },
-        })
-      }
-
-      const removing_visitor = () => {
-        $.ajax({
-          url: `${serverName}/egress`,
-          type:"GET",
-          headers: {
-            "X-CSRFToken": getCSRFToken(),
-          },
-          success: (response) => {
-            let newData = ''
-            var count = response.count
-            var info = response.update
-            if(currentCount > count){
-              info.forEach((visitor) => {
-                newData +=  `
-                <tr class="pt-2">
-                  <td class="pt-3 font-semibold">
-                    ${visitor.FirstName} ${visitor.LastName}
-                  </td>
-                  <td class="pt-3 font-semibold">${visitor.Type}</td>
-                  <td class="pt-3 font-semibold">${visitor.Purpose}</td>
-                  <td
-                    class="pt-3 font-semibold"
-                    id="Status${visitor.RFID_NUM}"
-                  >
-                    ${
-                        visitor.Status == 'Pending' ?
-                        `<span class="bg-orange-200 px-3 py-1 rounded-full"
-                        >${visitor.Status}</span
-                        >`: visitor.Status == "Ongoing" ?
-                      `<span class="bg-sky-200 px-3 py-1 rounded-full"
-                        >${visitor.Status}</span` : `<span class="bg-green-200 px-3 py-1 rounded-full"
-                        >${visitor.Status}</span`
-                    }
-                  </td>
-                  <td class="pt-3 font-semibold text-center">
-                    <button
-                      class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 registrarBtn"
-                      data-first-name="${visitor.FirstName}"
-                      data-last-name="${visitor.LastName}"
-                      data-id-type="${visitor.Type}"
-                      data-rfid="${visitor.RFID_NUM}"
-                      data-purpose = ${visitor.Status}
-                    >
-                      Start
-                    </button>
-                  </td>
-                  <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
-
-                  <td class="pt-3 text-center font-semibold">
-                    <button
-                      class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
-                      id="row${visitor.Count}"
-                    >
-                      Contact to admin
-                    </button>
-                  </td>
-                </tr>
-                `
-              })
-              $("#dataTable").html('')
-              $("#dataTable").append(newData)
-              currentCount = count
-            }
-          },
-          error: function (xhr, status, error) {
-            console.log("Error", error);
-          },
-        })
-      }
-
-      const minimizeBtn = document.querySelector("#minimizeBtn");
-      minimizeBtn.addEventListener("click", () => {
-        document.querySelector("#sidebar").classList.toggle("w-0");
-        document.querySelector("#sidebar").classList.toggle("overflow-hidden");
-      });
-
-      document
-        .querySelector("#registrarData")
-        .addEventListener("click", (e) => {
-          if (e.target.classList.contains("transacted")) {
-            const btn = e.target.dataset;
-            const rfid = btn.rfid;
-            removeRegistrar(rfid);
-            $(`#visi${rfid}`).hide(1000, function () {
-              // Remove the element after hiding
-              $(this).remove();
-            });
-            const returnPending = document.getElementById(`Stat${rfid}`);
-            returnPending.innerHTML = `<span class="bg-orange-200 px-3 py-1 rounded-full"
-                      >Pending</span
-                    >`;
-            console.log("removing");
-            const visitorPurpose = document.getElementById(`pur${rfid}`);
-            visitorPurpose.innerHTML = "School";
-          }
-        });
-
-      document.querySelector("#visitorTable").addEventListener("click", (e) => {
-        if (e.target.classList.contains("registrarBtn")) {
-          // (firstName, lastName, idType, rfid)
-          const btn = e.target.dataset;
-          const firstName = btn.firstName;
-          const lastName = btn.lastName;
-          const idType = btn.idType;
-          const rfid = btn.rfid;
-          const purpose = btn.purpose;
-
-          purpose == "Pending"
-            ? addRegistrar(firstName, lastName, idType, rfid)
-            : "Already Transacting";
-        }
-      });
-      const new_accounting = () => {
+      const new_registrar = () => {
           $.ajax({
-              url: `${serverName}/new_trn_accounting`,
+              url: `${serverName}/new_trn_registrar`,
               method: "GET",
               headers: {
                 "X-CSRFToken": getCSRFToken(),
               },
               success: (response) => {
-                  let account_count = response.count_accounting
-                  let data = response.visitors
+                  let regis_count = response.count_registrar
+                  let data = response.registrar
                   let htmlLine = ''
-                  if (Number(account_count) != Number(currentAccountingCount)){
+
+                  console.log("New Registrar")
+                  if (Number(regis_count) != Number(currentRegistrarCount)){
                       $("#dataTable").html('')
 
                       data.forEach((visitor) => {
@@ -612,7 +608,7 @@
                             ${visitor.FirstName} ${visitor.LastName}
                           </td>
                           <td class="pt-3 font-semibold">${visitor.Type}</td>
-                          <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                          <td class="pt-3 font-semibold" id = "pur${visitor.RFID_NUM}">${visitor.Purpose}</td>
                           <td
                             class="pt-3 font-semibold"
                             id="Status${visitor.RFID_NUM}"
@@ -621,7 +617,7 @@
                           </td>
                           <td class="pt-3 font-semibold text-center">
                             <button
-                              class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 cashierData"
+                              class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 accountingBtn"
                               data-first-name="${visitor.FirstName}"
                               data-last-name="${visitor.LastName}"
                               data-id-type="${visitor.Type}"
@@ -654,12 +650,12 @@
           })
         }
 
-      setInterval(function () {
-        new_cashier();
-        new_visitor();
-        removing_visitor();
-        new_accounting();
-      }, 3000);
+            setInterval(() => {
+              new_visitor();
+              removing_visitor();
+              new_cashier();
+              new_registrar()
+            }, 3000);
     </script>
   </body>
 </html>

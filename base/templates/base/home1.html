@@ -32,7 +32,7 @@
   <body>
     <div class="flex flex-row">
       <div
-        class="transition-all duration-500 w-96 bg-gray-200 text-black"
+        class="transition-all duration-500 w-96 bg-gray-200 text-black h-screen static"
         id="sidebar"
       >
         {% include "./includes/sidebar.html" %}
@@ -46,12 +46,100 @@
             ></i>
             Welcome Users
           </div>
-          <div class="font-bold text-3xl py-5">
-            <h2>Total Visitors</h2>
-            <h2 class="text-center">
-              <i class="fa-solid fa-users"></i>
-              <span id="total_visitors">{{count}}</span>
-            </h2>
+        </div>
+        <div
+          class="grid grid-cols-1 xl:grid-cols-4 md:grid-cols-2 place-items-center place-content-center mt-10 mb-10 gap-5"
+        >
+          <div
+            class="border-black border-2 p-5 shadow rounded w-64 h-full"
+            style="
+              background-color: #85ffbd;
+              background-image: linear-gradient(
+                45deg,
+                #85ffbd 0%,
+                #fffb7d 100%
+              );
+            "
+          >
+            <div class="flex justify-between">
+              <h1 class="text-2xl font-bold">Total Visitors</h1>
+              <i class="fa-solid fa-people-group text-2xl font-bold"></i>
+            </div>
+            <div
+              class="flex justify-center mt-2 font-bold text-4xl"
+              id="totalVisitors"
+            >
+              {{count}}
+              <span class="text-xl flex items-center mx-2">visitor/s</span>
+            </div>
+          </div>
+          <div
+            class="border-black border-2 p-5 shadow rounded w-64 h-full"
+            style="
+              background-color: #d9afd9;
+              background-image: linear-gradient(0deg, #d9afd9 0%, #97d9e1 100%);
+            "
+          >
+            <div class="flex justify-between">
+              <h1 class="text-xl font-bold">Cashier Transaction</h1>
+              <i class="fa-solid fa-wallet text-2xl font-bold"></i>
+            </div>
+            <div
+              class="flex justify-center mt-2 font-bold text-4xl"
+              id="cashierVisitors"
+            >
+              {{count_cashier}}
+              <span class="text-xl flex items-center mx-2">visitor/s</span>
+            </div>
+          </div>
+          <div
+            class="border-black border-2 p-5 shadow rounded w-64 h-full"
+            style="
+              background-color: #8bc6ec;
+              background-image: linear-gradient(
+                135deg,
+                #8bc6ec 0%,
+                #9599e2 100%
+              );
+            "
+          >
+            <div class="flex justify-between">
+              <h1 class="text-xl font-bold">Registrar Transaction</h1>
+              <i class="fa-solid fa-wallet text-2xl font-bold"></i>
+            </div>
+            <div
+              class="flex justify-center mt-2 font-bold text-4xl"
+              id="registrarVisitors"
+            >
+              {{count_registrar}}
+              <span class="text-xl flex items-center mx-2">visitor/s</span>
+            </div>
+          </div>
+          <div
+            class="border-black border-2 p-5 shadow rounded w-64 h-full"
+            style="
+              background-color: #ffdee9;
+              background-image: linear-gradient(0deg, #ffdee9 0%, #b5fffc 100%);
+            "
+          >
+            <div class="flex justify-between">
+              <h1 class="text-xl font-bold">Accounting Transaction</h1>
+              <i class="fa-solid fa-wallet text-2xl font-bold"></i>
+            </div>
+            <div
+              class="flex justify-center mt-2 font-bold text-4xl"
+              id="accountingVisitors"
+            >
+              {{count_accounting}}
+              <span class="text-xl flex items-center mx-2">visitor/s</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center mb-7">
+          <div class="bg-black text-white rounded px-10 py-2 shadow">
+            <h1 class="text-3xl font-bold">
+              <i class="fa-solid fa-users-rays mx-2"></i> Visitors Table
+            </h1>
           </div>
         </div>
         <div class="flex flex-row mt-2 gap-7">
@@ -109,23 +197,23 @@
           <table class="w-full">
             <thead class="border-b-2">
               <tr>
-                <th class="text-start">
+                <th class="text-center">
                   <i class="fa-solid fa-user"></i> Full Name
                 </th>
-                <th class="text-start">
+                <th class="text-center">
                   <i class="fa-solid fa-id-card-clip"></i> ID Type
                 </th>
-                <th class="text-start">
+                <th class="text-center">
                   <i class="fa-solid fa-cash-register"></i> Status
                 </th>
-                <th class="text-start">
+                <th class="text-center">
                   <i class="fa-solid fa-book"></i> Purpose
                 </th>
-                <th class="text-start">
+                <th class="text-center">
                   <i class="fa-solid fa-clock"></i> Date and Time
                 </th>
-                <th class="text-start">
-                  <i class="fa-solid fa-clock"></i> Time of Egress
+                <th class="text-center">
+                  <i class="fa-solid fa-phone"></i> Phone Number
                 </th>
                 <th class="text-center">Missing Visitors card?</th>
               </tr>
@@ -133,11 +221,14 @@
             <tbody id="dataTable">
               {% for visitor in visitors%}
               <tr class="pt-2">
-                <td class="pt-3 font-semibold">
+                <td class="pt-3 font-semibold text-center">
                   {{visitor.FirstName |title}} {{visitor.LastName|title}}
                 </td>
-                <td class="pt-3 font-semibold">{{visitor.Type}}</td>
-                <td class="pt-3 font-semibold" id="Status{{visitor.RFID_NUM}}">
+                <td class="pt-3 font-semibold text-center">{{visitor.Type}}</td>
+                <td
+                  class="pt-3 font-semibold text-center"
+                  id="Status{{visitor.RFID_NUM}}"
+                >
                   {% if visitor.Status == "Pending" %}
                   <span class="bg-orange-200 px-3 py-1 rounded-full"
                     >{{visitor.Status}}</span
@@ -148,9 +239,42 @@
                   >
                   {% endif %}
                 </td>
-                <td class="pt-3 font-semibold">{{visitor.Purpose}}</td>
-                <td class="pt-3 font-semibold">{{visitor.LogIn}}</td>
-                <td class="pt-3 font-semibold">Time</td>
+                <td class="pt-3 font-semibold text-center">
+                  {{visitor.Purpose}}
+                </td>
+                <td class="pt-3 font-semibold text-center">
+                  {{visitor.LogIn}}
+                </td>
+                <td class="pt-3 font-semibold flex gap-2 flex justify-center">
+                  {% if visitor.PhoneNumber is null %}
+                  <input
+                    type="text"
+                    class="border-2 rounded-full border-black"
+                    placeholder="Add Phone Number"
+                    id="Input{{visitor.RFID_NUM}}"
+                  />
+                  <button
+                    class="border px-3 bg-black text-white rounded-full addPhone"
+                    data-rfid="{{visitor.RFID_NUM}}"
+                  >
+                    Add
+                  </button>
+                  {% else %}
+                  <input
+                    type="text"
+                    class="border-2 rounded-full border-black bg-gray-200"
+                    id="Input{{visitor.RFID_NUM}}"
+                    value="{{visitor.PhoneNumber}}"
+                    disabled
+                  />
+                  <button
+                    class="border px-3 bg-black text-white rounded-full addPhone"
+                    data-rfid="{{visitor.RFID_NUM}}"
+                  >
+                    Add
+                  </button>
+                  {% endif %}
+                </td>
                 <td class="pt-3 text-center font-semibold">
                   <button
                     class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
@@ -163,84 +287,6 @@
               {% endfor %}
             </tbody>
           </table>
-          <div class="pagination flex flex-row mt-4 gap-1">
-            <button
-              class="left transition-all duration-300 hover:-translate-y-1"
-            >
-              <i class="fa-solid fa-circle-chevron-left text-2xl"></i>
-            </button>
-            <div class="page flex flex-row text-base">
-              <button
-                class="transition-all duration-300 button1 bg-black px-3 py-1 font-bold text-white rounded-full hover:-translate-y-1"
-              >
-                1
-              </button>
-              <button
-                class="transition-all duration-300 button1 px-3 py-1 font-bold rounded-full hover:-translate-y-1 hover:bg-black hover:text-white"
-              >
-                2
-              </button>
-            </div>
-            <button
-              class="left transition-all duration-300 hover:-translate-y-1 rotate-180"
-            >
-              <i class="fa-solid fa-circle-chevron-left text-2xl"></i>
-            </button>
-          </div>
-          <div class="mt-8 w-full p-3">
-            <h1 class="font-bold text-2xl text-center">
-              <i class="fa-solid fa-chart-line"></i> Visitor's Summary
-            </h1>
-            <div class="cards flex flex-col lg:flex-row w-full mt-5">
-              <div
-                class="w-full lg:w-1/2 flex flex-col lg:flex-row items-stretch justify-between gap-4"
-              >
-                <div
-                  id="chart1"
-                  class="w-full lg:w-1/2 shadow rounded border-2 mx-auto"
-                ></div>
-                <div
-                  class="status1 lg:w-1/2 duration-500 flex flex-col gap-4 w-full"
-                >
-                  <div class="shadow rounded border-2 p-3">
-                    <h1 class="text-center font-bold text-2xl">
-                      Total of Visitors Yesterday
-                    </h1>
-                    <h1 class="mt-2 text-center font-bold text-2xl">
-                      <i class="fa-solid fa-person-walking-arrow-right"></i>
-                      <span class="mx-1" id="yesterdayVisitors"
-                        >30 Visitors</span
-                      >
-                    </h1>
-                  </div>
-                  <div class="shadow rounded border-2 p-3">
-                    <h1 class="text-center font-bold text-2xl">
-                      Total of Visitors Today
-                    </h1>
-                    <h1 class="text-center font-bold text-2xl">
-                      <i class="fa-solid fa-person-walking-arrow-right"></i
-                      ><span class="mx-1" id="todaysVisitors">22 Visitors</span>
-                    </h1>
-                  </div>
-                  <div class="shadow rounded border-2 p-3">
-                    <h1 class="text-center font-bold text-2xl">
-                      Percentage Increase of Visitors
-                    </h1>
-                    <h1 class="text-center font-bold text-2xl">
-                      <i class="fa-solid fa-circle-down text-red-800"></i
-                      ><span class="mx-1" id="percentageVisitors">-0.26%</span>
-                    </h1>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="w-full lg:w-1/2 flex flex-col lg:flex-row justify-center"
-              >
-                <div id="chart2" class="w-full lg:w-1/2"></div>
-                <div id="status2" class="w-1/3">awdwd</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -255,392 +301,489 @@
       AOS.init();
     </script>
     <script>
-              function getCSRFToken() {
-                return document
-                  .querySelector('meta[name="csrf-token"]')
-                  .getAttribute("content");
-              }
-              // const server = "http://192.168.1.11:8000";
+      function getCSRFToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      }
 
-              const server = "http://127.0.0.1:8000"
+             const server = "http://192.168.1.10:8000";
 
-              const minimizeBtn = document.querySelector("#minimizeBtn");
-              var currentCount = {{ count|safe }}
-              var currentCountCashier = {{ count_cashier|safe }}
-              var currentCountRegistrar = {{ count_registrar|safe }}
-              console.log(currentCountRegistrar)
-              var tblData = document.querySelector("#dataTable")
+             // const server = "http://127.0.0.1:8000"
 
-              minimizeBtn.addEventListener("click", () => {
-                document.querySelector("#sidebar").classList.toggle("w-0");
-                document.querySelector("#sidebar>h2").classList.toggle("scale-0");
-                document.querySelector("#navMenu").classList.toggle("scale-0");
-              });
+             const minimizeBtn = document.querySelector("#minimizeBtn");
+             var currentCount = {{ count|safe }}
+             var currentCountCashier = {{ count_cashier|safe }}
+             var currentCountRegistrar = {{ count_registrar|safe }}
+             var currentCountAccounting = {{ count_accounting|safe }}
+             console.log(currentCountRegistrar)
+             var tblData = document.querySelector("#dataTable")
 
-              const adminMissingEmail = document.querySelectorAll("td > .missingEmail")
-              adminMissingEmail.forEach(function(missingBtn){
+             minimizeBtn.addEventListener("click", () => {
+               document.querySelector("#sidebar").classList.toggle("w-0");
+               document.querySelector("#sidebar>h2").classList.toggle("scale-0");
+               document.querySelector("#navMenu").classList.toggle("scale-0");
+             });
 
-                missingBtn.addEventListener("click", function(){
-                  rowNum = this.id.replace('row', '')
-                  row = tblData.querySelectorAll("tr")[rowNum - 1]
-                  name = row.querySelector("td:nth-child(1)").innerText
-                  purpose = row.querySelector("td:nth-child(3)").innerText
-                  timeIn = row.querySelector("td:nth-Child(5)").innerText
-                  console.log(name, purpose, timeIn)
-                  sendEmail(name, purpose, timeIn)
-                })
-              })
+             const adminMissingEmail = document.querySelectorAll("td > .missingEmail")
+             adminMissingEmail.forEach(function(missingBtn){
 
-
-              const sendEmail = (name, purpose, timein) => {
-                  $.ajax({
-                    url:`${server}/sent`,
-                    type: "POST",
-                    headers: {
-                      "X-CSRFToken": getCSRFToken(),
-                    },
-                    data: JSON.stringify({
-                      "name":name,
-                      "purpose":purpose,
-                      "timeIn": timein
-                    }),
-                    success: (response) => {
-                      console.log(response)
-                    },
-                    error: function (xhr, status, error) {
-                    console.log("Error", error);
-                    },
-                  })
-              }
+               missingBtn.addEventListener("click", function(){
+                 rowNum = this.id.replace('row', '')
+                 row = tblData.querySelectorAll("tr")[rowNum - 1]
+                 name = row.querySelector("td:nth-child(1)").innerText
+                 purpose = row.querySelector("td:nth-child(3)").innerText
+                 timeIn = row.querySelector("td:nth-Child(5)").innerText
+                 console.log(name, purpose, timeIn)
+                 sendEmail(name, purpose, timeIn)
+               })
+             })
 
 
-              const new_visitor = () => {
-                $.ajax({
-                  url: `${server}/insert`,
-                  type: "POST",
-                  headers: {
-                    "X-CSRFToken": getCSRFToken(),
-                  },
-                  success: (response) => {
-                    tblData = document.querySelector("#dataTable")
-                    var count = response.count
-                    var visitor = response.visitor
+             const sendEmail = (name, purpose, timein) => {
+                 $.ajax({
+                   url:`${server}/sent`,
+                   type: "POST",
+                   headers: {
+                     "X-CSRFToken": getCSRFToken(),
+                   },
+                   data: JSON.stringify({
+                     "name":name,
+                     "purpose":purpose,
+                     "timeIn": timein
+                   }),
+                   success: (response) => {
+                     console.log(response)
+                   },
+                   error: function (xhr, status, error) {
+                   console.log("Error", error);
+                   },
+                 })
+             }
+
+             const addPhoneNumber = (rfid, phonenumber) => {
+               $.ajax({
+                 url: `${server}/addPhoneNumber`,
+                 type:"POST",
+                 headers: {
+                     "X-CSRFToken": getCSRFToken(),
+                 },
+                 data: JSON.stringify({
+                   "phone": phonenumber,
+                   "rfid_num": rfid
+                 }),
+                 success: (response) => {
+                   console.log(response)
+                 },
+                 error: function (xhr, status, error) {
+                   console.log("Error", error);
+                 }
+               })
+             }
+
+
+             const new_visitor = () => {
+               $.ajax({
+                 url: `${server}/insert`,
+                 type: "POST",
+                 headers: {
+                   "X-CSRFToken": getCSRFToken(),
+                 },
+                 success: (response) => {
+                   tblData = document.querySelector("#dataTable")
+                   var count = response.count
+                   var visitor = response.visitor
+                   let newData = ''
+                   if (count > currentCount){
+                         newData += `
+                           <tr class="pt-2">
+                             <td class="pt-3 font-semibold">
+                               ${visitor.FirstName} ${visitor.LastName}
+                             </td>
+                             <td class="pt-3 font-semibold">${visitor.Type}</td>
+                             <td class="pt-3 font-semibold" id = "Status${visitor.RFID_NUM}">
+                               <span class="bg-orange-200 px-3 py-1 rounded-full"
+                                 >${visitor.Status}</span
+                               >
+                             </td>
+                             <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                             <td class="pt-3 font-semibold">${visitor.LogIn}</td>
+                             <td class="pt-3 font-semibold">
+                               <input
+                                 type="text"
+                                 class="border-2 rounded-full border-black"
+                                 placeholder="Add Phone Number"
+                                 id="Input${visitor.RFID_NUM}"
+                               />
+                               <button
+                                 class="border px-3 bg-black text-white rounded-full addPhone"
+                                 data-rfid="${visitor.RFID_NUM}"
+                               >
+                                 Add
+                               </button>
+                             </td>
+                             <td class="pt-3 text-center font-semibold">
+                               <button
+                                 class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                                 id = 'row${count}'
+                               >
+                                 Contact to admin
+                               </button>
+                             </td>
+                           </tr>
+                       `
+                       $("#dataTable").append(newData)
+                       currentCount = count
+                       document.querySelector("#totalVisitors").innerHTML = count + `<span class="text-xl flex items-center mx-2">visitor/s</span>`
+
+                   }
+                 },
+                 error: function (xhr, status, error) {
+                   console.log("Error", error);
+                 },
+               });
+             };
+
+             const removing_visitor = () => {
+               $.ajax({
+                 url: `${server}/egress`,
+                 type: "GET",
+                 headers: {
+                   "X-CSRFToken": getCSRFToken()
+                 },
+                 success: (response) =>{
                     let newData = ''
-                    if (count > currentCount){
-                          newData += `
+                    var count = response.count
+                    var info = response.update
+
+                    if (count < currentCount){
+                     info.forEach((visitor) => {
+                       console.log(visitor.Status)
+                       newData += `
                             <tr class="pt-2" data-aos = "slide-up">
+                             <td class="pt-3 font-semibold">
+                               ${visitor.FirstName} ${visitor.LastName}
+                             </td>
+                             <td class="pt-3 font-semibold">${visitor.Type}</td>
+                             <td class="pt-3 font-semibold" id = "Status${visitor.RFID_NUM}">
+                             ${visitor.Status == 'Pending' ?
+                                 `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                                 >${visitor.Status}</span
+                               >`  : visitor.Status == "Ongoing" ?
+                               `<span class="bg-sky-200 px-3 py-1 rounded-full"
+                                 >${visitor.Status}</span` : `<span class="bg-green-200 px-3 py-1 rounded-full"
+                                 >${visitor.Status}</span`
+                             }
+                             </td>
+                             <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                             <td class="pt-3 font-semibold">${visitor.LogIn}</td>
                               <td class="pt-3 font-semibold">
-                                ${visitor.FirstName} ${visitor.LastName}
-                              </td>
-                              <td class="pt-3 font-semibold">${visitor.Type}</td>
-                              <td class="pt-3 font-semibold" id = "Status${visitor.RFID_NUM}">
-                                <span class="bg-orange-200 px-3 py-1 rounded-full"
-                                  >${visitor.Status}</span
-                                >
-                              </td>
-                              <td class="pt-3 font-semibold">${visitor.Purpose}</td>
-                              <td class="pt-3 font-semibold">${visitor.LogIn}</td>
-                              <td class="pt-3 font-semibold">Time</td>
-                              <td class="pt-3 text-center font-semibold">
-                                <button
-                                  class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
-                                  id = 'row${count}'
-                                >
-                                  Contact to admin
-                                </button>
-                              </td>
-                            </tr>
-                        `
-                        $("#dataTable").append(newData)
-                        currentCount = count
-                        document.querySelector("#total_visitors").innerHTML = count
-                    }
+                               <input
+                                 type="text"
+                                 class="border-2 rounded-full border-black"
+                                 placeholder="Add Phone Number"
+                                 id="Input${visitor.RFID_NUM}"
+                               />
+                               <button
+                                 class="border px-3 bg-black text-white rounded-full addPhone"
+                                 data-rfid="${visitor.RFID_NUM}"
+                               >
+                                 Add
+                               </button>
+                               </td>
+                             <td class="pt-3 text-center font-semibold">
+                               <button
+                                 class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                                 id = 'row${count}'
+                               >
+                                 Contact to admin
+                               </button>
+                             </td>
+                           </tr>
+                       `
+                     })
+                     $("#dataTable").html('')
+                     $("#dataTable").append(newData)
+                     document.querySelector("#totalVisitors").innerHTML = count + `<span class="text-xl flex items-center mx-2">visitor/s</span>`
+                     currentCount = count
+                   }
+                 }
+               })
+             }
+
+             const new_cashier = () => {
+               $.ajax({
+                 url: `${server}/new_trn_cashier`,
+                 type:"GET",
+                 headers: {
+                   "X-CSRFToken": getCSRFToken(),
+                 },
+                 success: (response) => {
+                   var tblData = ''
+                   console.log(Number(response.cashier_count))
+                   if (currentCountCashier != Number(response.cashier_count)){
+                     var visitors = response.visitors
+                     document.querySelector("#dataTable").innerHTML = ''
+
+                     visitors.forEach((visitor) => {
+                       var visitorStatus = (visitor.Status == "Pending") ?
+                       `<span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span>` :
+                       `<span class="bg-sky-200 px-3 py-1 rounded-full">${visitor.Status}</span>`
+                       var phoneNumber = (visitor.PhoneNumber === null) ? `
+                       <input
+                          type="text"
+                          class="border-2 rounded-full border-black"
+                          placeholder="Add Phone Number"
+                          id="Input{{visitor.RFID_NUM}}"
+                        />
+                        <button
+                          class="border px-3 bg-black text-white rounded-full addPhone"
+                          data-rfid="{{visitor.RFID_NUM}}"
+                        >
+                          Add
+                        </button>`: `
+                        <input
+                          type="text"
+                          class="border-2 rounded-full border-black bg-gray-200"
+                          id="Input{{visitor.RFID_NUM}}"
+                          value="${visitor.PhoneNumber}"
+                          disabled
+                        />
+                        <button
+                          class="border px-3 bg-black text-white rounded-full addPhone"
+                          data-rfid="${visitor.RFID_NUM}"
+                        >
+                          Add
+                        </button>`
+                       tblData += `
+                         <tr class="pt-2">
+                           <td class="pt-3 font-semibold">
+                             ${visitor.FirstName} ${visitor.LastName}
+                           </td>
+                           <td class="pt-3 font-semibold">${visitor.Type}</td>
+                           <td class="pt-3 font-semibold" id="Status${visitor.RFID_NUM}">
+                             ${visitorStatus}
+                           </td>
+                           <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                           <td class="pt-3 font-semibold">${visitor.LogIn}</td>
+                           <td class="pt-3 font-semibold">
+                               ${phoneNumber}
+                           </td>
+                           <td class="pt-3 text-center font-semibold">
+                             <button
+                               class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                               id="row${visitor.Count}"
+                             >
+                               Contact to admin
+                             </button>
+                           </td>
+                         </tr>
+                       `
+                     })
+                     $("#dataTable").append(tblData)
+                     currentCountCashier = Number(response.cashier_count)
+                     document.querySelector("#cashierVisitors").innerHTML = currentCountCashier + `<span class="text-xl flex items-center mx-2">visitor/s</span>`
+                   }
+                 },
+                 error: function (xhr, status, error) {
+                   console.log("Error", error);
+                 }
+               })
+             }
 
 
 
-                  },
-                  error: function (xhr, status, error) {
-                    console.log("Error", error);
-                  },
-                });
-              };
+             const new_accounting = () => {
+               $.ajax({
+                 url: `${server}/new_trn_accounting`,
+                 type:"GET",
+                 headers: {
+                   "X-CSRFToken": getCSRFToken(),
+                 },
+                 success: (response) => {
+                   var tblData = ''
+                   console.log(Number(currentCountAccounting), Number(response.count_accounting))
+                   if (Number(currentCountAccounting) != Number(response.count_accounting)){
+                     var visitors = response.visitors
+                     document.querySelector("#dataTable").innerHTML = ''
 
-              const removing_visitor = () => {
-                $.ajax({
-                  url: `${server}/egress`,
-                  type: "GET",
-                  headers: {
-                    "X-CSRFToken": getCSRFToken()
-                  },
-                  success: (response) =>{
-                     let newData = ''
-                     var count = response.count
-                     var info = response.update
-
-                     if (count < currentCount){
-                      info.forEach((visitor) => {
-                        console.log(visitor.Status)
-                        newData += `
-                             <tr class="pt-2" data-aos = "slide-up">
-                              <td class="pt-3 font-semibold">
-                                ${visitor.FirstName} ${visitor.LastName}
-                              </td>
-                              <td class="pt-3 font-semibold">${visitor.Type}</td>
-                              <td class="pt-3 font-semibold" id = "Status${visitor.RFID_NUM}">
-                              ${visitor.Status == 'Pending' ?
-                                  `<span class="bg-orange-200 px-3 py-1 rounded-full"
-                                  >${visitor.Status}</span
-                                >`  : visitor.Status == "Ongoing" ?
-                                `<span class="bg-sky-200 px-3 py-1 rounded-full"
-                                  >${visitor.Status}</span` : `<span class="bg-green-200 px-3 py-1 rounded-full"
-                                  >${visitor.Status}</span`
-                              }
-                              </td>
-                              <td class="pt-3 font-semibold">${visitor.Purpose}</td>
-                              <td class="pt-3 font-semibold">${visitor.LogIn}</td>
-                               <td class="pt-3 font-semibold">Time</td>
-                              <td class="pt-3 text-center font-semibold">
-                                <button
-                                  class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
-                                  id = 'row${count}'
-                                >
-                                  Contact to admin
-                                </button>
-                              </td>
-                            </tr>
-                        `
-                      })
-                      $("#dataTable").html('')
-                      $("#dataTable").append(newData)
-                      document.querySelector("#total_visitors").innerHTML = count
-                      currentCount = count
-                    }
-                  }
-                })
-              }
-
-              const new_cashier = () => {
-                $.ajax({
-                  url: `${server}/new_trn_cashier`,
-                  type:"GET",
-                  headers: {
-                    "X-CSRFToken": getCSRFToken(),
-                  },
-                  success: (response) => {
-                    var tblData = ''
-                    console.log(Number(response.cashier_count))
-                    if (currentCountCashier != Number(response.cashier_count)){
-                      var visitors = response.visitors
-                      document.querySelector("#dataTable").innerHTML = ''
-
-                      visitors.forEach((visitor) => {
-                        var visitorStatus = (visitor.Status == "Pending") ?
-                        `<span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span>` :
-                        `<span class="bg-sky-200 px-3 py-1 rounded-full">${visitor.Status}</span>`
-                        tblData += `
-                          <tr class="pt-2">
-                            <td class="pt-3 font-semibold">
-                              ${visitor.FirstName} ${visitor.LastName}
-                            </td>
-                            <td class="pt-3 font-semibold">${visitor.Type}</td>
-                            <td class="pt-3 font-semibold" id="Status${visitor.RFID_NUM}">
-                              ${visitorStatus}
-                            </td>
-                            <td class="pt-3 font-semibold">${visitor.Purpose}</td>
-                            <td class="pt-3 font-semibold">${visitor.LogIn}</td>
-                            <td class="pt-3 font-semibold">Time</td>
-                            <td class="pt-3 text-center font-semibold">
-                              <button
-                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
-                                id="row${visitor.Count}"
-                              >
-                                Contact to admin
-                              </button>
-                            </td>
-                          </tr>
-                        `
-
-                      })
-                      $("#dataTable").append(tblData)
-                      currentCountCashier = Number(response.cashier_count)
-                    }
+                     visitors.forEach((visitor) => {
+                       var visitorStatus = (visitor.Status == "Pending") ?
+                       `<span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span>` :
+                       `<span class="bg-sky-200 px-3 py-1 rounded-full">${visitor.Status}</span>`
+                       var phoneNumber = (visitor.PhoneNumber === null) ? `
+                       <input
+                          type="text"
+                          class="border-2 rounded-full border-black"
+                          placeholder="Add Phone Number"
+                          id="Input${visitor.RFID_NUM}"
+                        />
+                        <button
+                          class="border px-3 bg-black text-white rounded-full addPhone"
+                          data-rfid="${visitor.RFID_NUM}"
+                        >
+                          Add
+                        </button>`: `
+                        <input
+                          type="text"
+                          class="border-2 rounded-full border-black bg-gray-200"
+                          id="Input${visitor.RFID_NUM}"
+                          value="${visitor.PhoneNumber}"
+                          disabled
+                        />
+                        <button
+                          class="border px-3 bg-black text-white rounded-full addPhone"
+                          data-rfid="${visitor.RFID_NUM}"
+                        >
+                          Add
+                        </button>`
 
 
+                       tblData += `
+                         <tr class="pt-2">
+                           <td class="pt-3 font-semibold">
+                             ${visitor.FirstName} ${visitor.LastName}
+                           </td>
+                           <td class="pt-3 font-semibold">${visitor.Type}</td>
+                           <td class="pt-3 font-semibold" id="Status${visitor.RFID_NUM}">
+                             ${visitorStatus}
+                           </td>
+                           <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                           <td class="pt-3 font-semibold">${visitor.LogIn}</td>
+                           <td class="pt-3 font-semibold">
+                              ${phoneNumber}
+                           </td>
+                           <td class="pt-3 text-center font-semibold">
+                             <button
+                               class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                               id="row${visitor.Count}"
+                             >
+                               Contact to admin
+                             </button>
+                           </td>
+                         </tr>
+                       `
 
-                  },
-                  error: function (xhr, status, error) {
-                    console.log("Error", error);
-                  }
-                })
-              }
+                     })
+                     $("#dataTable").append(tblData)
+                     currentCountAccounting = Number(response.count_accounting)
+                     document.querySelector("#accountingVisitors").innerHTML = currentCountAccounting + `<span class="text-xl flex items-center mx-2">visitor/s</span>`
+                   }
+                 },
+                 error: function (xhr, status, error) {
+                   console.log("Error", error);
+                 }
+               })
+             }
 
-              const new_registrar = () => {
-                $.ajax({
-                  url: `${server}/new_trn_registrar`,
-                  type: 'GET',
-                  headers: {
-                    "X-CSRFToken": getCSRFToken(),
-                  },
-                  success: (response) => {
-                    var count = response.count_registrar[0]["COUNT(*)"]
-                    var tblData = ''
+             const new_registrar = () => {
+               $.ajax({
+                 url: `${server}/new_trn_registrar`,
+                 type: 'GET',
+                 headers: {
+                   "X-CSRFToken": getCSRFToken(),
+                 },
+                 success: (response) => {
+                   var count = response.count_registrar[0]["COUNT(*)"]
+                   var tblData = ''
 
-                    console.log(response)
-                    if (Number(count) != Number(currentCountRegistrar)){
-                        $("#dataTable").html('')
-                        console.log("Working")
-                        var visitors = response.registrar
-                        console.log(visitors)
-                        visitors.forEach((visitor) => {
-                        var visitorStatus = (visitor.Status == "Pending") ?
-                        `<span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span>` :
-                        `<span class="bg-sky-200 px-3 py-1 rounded-full">${visitor.Status}</span>`
-                        tblData += `
-                          <tr class="pt-2">
-                            <td class="pt-3 font-semibold">
-                              ${visitor.FirstName} ${visitor.LastName}
-                            </td>s
-                            <td class="pt-3 font-semibold">${visitor.Type}</td>
-                            <td class="pt-3 font-semibold" id="Status${visitor.RFID_NUM}">
-                              ${visitorStatus}
-                            </td>
-                            <td class="pt-3 font-semibold">${visitor.Purpose}</td>
-                            <td class="pt-3 font-semibold">${visitor.LogIn}</td>
-                            <td class="pt-3 font-semibold">Time</td>
-                            <td class="pt-3 text-center font-semibold">
-                              <button
-                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
-                                id="row${visitor.Count}"
-                              >
-                                Contact to admin
-                              </button>
-                            </td>
-                          </tr>
-                        `
-                        })
+                   console.log(response)
+                   if (Number(count) != Number(currentCountRegistrar)){
+                       $("#dataTable").html('')
+                       console.log("Working")
+                       var visitors = response.registrar
+                       console.log(visitors)
+                       visitors.forEach((visitor) => {
+                       var visitorStatus = (visitor.Status == "Pending") ?
+                       `<span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span>` :
+                       `<span class="bg-sky-200 px-3 py-1 rounded-full">${visitor.Status}</span>`
+                       var phoneNumber = (visitor.PhoneNumber === null) ? `
+                       <input
+                          type="text"
+                          class="border-2 rounded-full border-black"
+                          placeholder="Add Phone Number"
+                          id="Input{{visitor.RFID_NUM}}"
+                        />
+                        <button
+                          class="border px-3 bg-black text-white rounded-full addPhone"
+                          data-rfid="{{visitor.RFID_NUM}}"
+                        >
+                          Add
+                        </button>`: `
+                        <input
+                          type="text"
+                          class="border-2 rounded-full border-black bg-gray-200"
+                          id="Input{{visitor.RFID_NUM}}"
+                          value="${visitor.PhoneNumber}"
+                          disabled
+                        />
+                        <button
+                          class="border px-3 bg-black text-white rounded-full addPhone"
+                          data-rfid="${visitor.RFID_NUM}"
+                        >
+                          Add
+                        </button>`
+                       tblData += `
+                         <tr class="pt-2">
+                           <td class="pt-3 font-semibold">
+                             ${visitor.FirstName} ${visitor.LastName}
+                           </td>s
+                           <td class="pt-3 font-semibold">${visitor.Type}</td>
+                           <td class="pt-3 font-semibold" id="Status${visitor.RFID_NUM}">
+                             ${visitorStatus}
+                           </td>
+                           <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                           <td class="pt-3 font-semibold">${visitor.LogIn}</td>
+                           <td class="pt-3 font-semibold">
+                              ${phoneNumber}
+                           </td>
+                           <td class="pt-3 text-center font-semibold">
+                             <button
+                               class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                               id="row${visitor.Count}"
+                             >
+                               Contact to admin
+                             </button>
+                           </td>
+                         </tr>
+                       `
+                       })
 
-                    }
+                   }
 
 
-                    $("#dataTable").append(tblData)
-                    currentCountRegistrar = Number(count)
+                   $("#dataTable").append(tblData)
+                   currentCountRegistrar = Number(count)
+                   document.querySelector("#registrarVisitors").innerHTML = currentCountRegistrar + `<span class="text-xl flex items-center mx-2">visitor/s</span>`
 
 
-                  }, error: function (xhr, status, error) {
-                    console.log("Error", error);
-                  }
-                })
-              }
-
-             setInterval(function(){
-                new_visitor();
-                new_cashier();
-                removing_visitor();
-                new_registrar();
-              }, 3000)
+                 }, error: function (xhr, status, error) {
+                   console.log("Error", error);
+                 }
+               })
+             }
 
 
 
 
-      // Charts
 
-      const options = {
-      chart: {
-        type: 'donut', // Specify that this is a donut chart
-        height: 400, // Fixed height
-          // Fixed width, optional if you set it in CSS
+             document.querySelector("#dataTable").addEventListener("click", (e) => {
+                   if(e.target.classList.contains("addPhone")){
+                     const btn = e.target
+                     const rfid = btn.dataset.rfid
+                     document.querySelector(`#Input${rfid}`).disabled = true
+                     document.querySelector(`#Input${rfid}`).classList.add("bg-gray-200")
+                     let visitorPhoneNumber = document.querySelector(`#Input${rfid}`).value
+                     console.log(visitorPhoneNumber)
+                     addPhoneNumber(rfid, visitorPhoneNumber)
+                   }
+             })
 
-      },
-      grid: {
-      padding: {
-
-      right: 50,
-
-      }},
-      series: [70, 30], // Two values for the donut chart
-      labels: ['Visitors Yesterday', 'Visitors Today'], // Labels for each segment
-      title: {
-        text: 'Percantage of Visits',
-        align:"center"
-      },
-      colors: ['#7077A1', '#343131'],
-      plotOptions: {
-        pie: {
-            donut: {
-                size: '65%' // Adjust the size of the donut hole
-            }
-        }
-      },
-      legend: {
-      position: 'bottom', // Position of the legend
-      horizontalAlign: 'center', // Horizontal alignment of the legend
-      floating: false, // Set to true if you want to position the legend absolutely
-      offsetY: 10 // Vertical offset for legend positioning
-      }
-
-      };
-
-      const barChartOptions = {
-      chart: {
-      type: 'bar', // Specifies that this is a bar chart
-      height: 400, // Fixed height
-
-      },
-      series: [{
-      name: 'Visitors',
-      data: [10, 15, 20, 25, 30, 35, 40] // Example data
-      }],
-      xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'] // Example categories
-      },
-      title: {
-      text: 'Monthly Visitor Count'
-      },
-      plotOptions: {
-      bar: {
-      horizontal: false, // Vertical bars
-      endingShape: 'rounded' // Rounded bars
-      }
-      },
-      colors: ['#008FFB'] // Bar color
-      };
-
-      const chart = new ApexCharts(document.querySelector("#chart1"), options);
-      chart.render();
-      const barChart = new ApexCharts(document.querySelector("#chart2"), barChartOptions);
-      barChart.render();
-
-
-
-
-              // function sendData(mode) {
-              //   $.ajax({
-              //     url: "http://127.0.0.1:8000/dashboard/linearChartData",
-              //     type: "POST",
-              //     data: {
-              //       mode: mode,
-              //     },
-              //     headers: {
-              //       "X-CSRFToken": getCSRFToken(), // Include the CSRF token
-              //     },
-              //     success: (response) => {
-              //       console.log(response);
-              //       chart1.updateOptions({
-              //         series: [
-              //           {
-              //             data: response["rows"],
-              //           },
-              //         ],
-              //         xaxis: {
-              //           categories: response["cols"],
-              //         },
-              //       });
-              //     },
-              //     error: function (xhr, status, error) {
-              //       console.log("Error", error);
-              //     },
-              //   });
-              // }
+            setInterval(function(){
+               new_visitor();
+               new_cashier();
+               removing_visitor();
+               new_registrar();
+               new_accounting();
+             }, 3000)
     </script>
   </body>
 </html>

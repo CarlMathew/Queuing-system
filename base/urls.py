@@ -17,6 +17,11 @@ urlpatterns = [
     path("registrar", view=views.registrar),
     path("addRegistrar", view=views.addRegistrar),
     path("removeRegistrar", view = views.removeRegistrar),
-    path("new_trn_registrar", view= views.new_trn_registrar)
+    path("new_trn_registrar", view= views.new_trn_registrar),
+    path("addPhoneNumber", view = views.addPhoneNumber),
+    path("accounting", view = views.accounting_web),
+    path("addAccounting", view=views.addAccounting),
+    path("removeAccounting", view = views.removeAccounting),
+    path('new_trn_accounting', view = views.new_trn_accounting)
 ]
 
