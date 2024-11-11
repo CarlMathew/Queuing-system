@@ -279,6 +279,9 @@
                   <button
                     class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                     id="row{{visitor.Count}}"
+                    data-name="{{visitor.FirstName}} {{visitor.LastName|title}}"
+                    data-purpose="{{visitor.Purpose}}"
+                    data-timeIn="{{visitor.LogIn}}"
                   >
                     Contact to admin
                   </button>
@@ -305,7 +308,7 @@
         return document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       }
 
-             const server = "http://192.168.1.10:8000";
+             const server = "http://192.168.1.8:8000";
 
              // const server = "http://127.0.0.1:8000"
 
@@ -323,19 +326,28 @@
                document.querySelector("#navMenu").classList.toggle("scale-0");
              });
 
-             const adminMissingEmail = document.querySelectorAll("td > .missingEmail")
-             adminMissingEmail.forEach(function(missingBtn){
+            //  const adminMissingEmail = document.querySelectorAll("td > .missingEmail")
+            //  adminMissingEmail.forEach(function(missingBtn){
 
-               missingBtn.addEventListener("click", function(){
-                 rowNum = this.id.replace('row', '')
-                 row = tblData.querySelectorAll("tr")[rowNum - 1]
-                 name = row.querySelector("td:nth-child(1)").innerText
-                 purpose = row.querySelector("td:nth-child(3)").innerText
-                 timeIn = row.querySelector("td:nth-Child(5)").innerText
-                 console.log(name, purpose, timeIn)
-                 sendEmail(name, purpose, timeIn)
-               })
-             })
+            //    missingBtn.addEventListener("click", function(){
+            //      rowNum = this.id.replace('row', '')
+            //      row = tblData.querySelectorAll("tr")[rowNum - 1]
+            //      name = row.querySelector("td:nth-child(1)").innerText
+            //      purpose = row.querySelector("td:nth-child(3)").innerText
+            //      timeIn = row.querySelector("td:nth-Child(5)").innerText
+            //      console.log(name, purpose, timeIn)
+            //      sendEmail(name, purpose, timeIn)
+            //    })
+            //  })
+
+
+
+            document.querySelector("#dataTable").addEventListener("click", (e) => {
+              if (e.target.classList.contains("missingEmail")){
+                  const btn = e.target.dataset
+                  sendEmail(btn.name, btn.purpose, btn.timein)
+              }
+            })
 
 
              const sendEmail = (name, purpose, timein) => {
@@ -424,6 +436,9 @@
                                <button
                                  class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                  id = 'row${count}'
+                                 data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                                 data-purpose="${visitor.Purpose}"
+                                 data-timeIn="${visitor.LogIn}"
                                >
                                  Contact to admin
                                </button>
@@ -493,6 +508,9 @@
                                <button
                                  class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                  id = 'row${count}'
+                                 data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                                data-purpose="${visitor.Purpose}"
+                                  data-timeIn="${visitor.LogIn}"
                                >
                                  Contact to admin
                                </button>
@@ -571,6 +589,9 @@
                              <button
                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                id="row${visitor.Count}"
+                               data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                                data-purpose="${visitor.Purpose}"
+                                data-timeIn="${visitor.LogIn}"
                              >
                                Contact to admin
                              </button>
@@ -655,6 +676,9 @@
                              <button
                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                id="row${visitor.Count}"
+                               data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                                data-purpose="${visitor.Purpose}"
+                                data-timeIn="${visitor.LogIn}"
                              >
                                Contact to admin
                              </button>
@@ -739,6 +763,9 @@
                              <button
                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                id="row${visitor.Count}"
+                               data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                                data-purpose="${visitor.Purpose}"
+                                data-timeIn="${visitor.LogIn}"
                              >
                                Contact to admin
                              </button>

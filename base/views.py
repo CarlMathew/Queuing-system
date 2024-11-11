@@ -288,7 +288,7 @@ def accounting_web(request):
         "visitors": visitors,
         "accounting": total_accounting,
         "cashier": total_cashier,
-        "registrar":total_registrar
+        "registrarx":total_registrar
     })
     
 def addAccounting(request):
