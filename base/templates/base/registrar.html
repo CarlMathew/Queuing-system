@@ -262,8 +262,9 @@
 
       let cashierCount = {{ cashier_count|safe }}
       let currentCount = {{ count|safe }}
-      const serverName = "http://192.168.1.8:8000";
-      // const serverName = "http://127.0.0.1:8000";
+      let currentAccountingCount = {{ accounting_count| safe}}
+      const serverName = "http://172.21.25.211:8000";
+      //const serverName = "http://127.0.0.1:8000";
       function getCSRFToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       }
@@ -294,10 +295,11 @@
             "X-CSRFToken": getCSRFToken(),
           },
           success: (response) => {
-            var new_cashier_count = response.cashierCount
+            var new_cashier_count = response.cashier_count
             let visitors = response.visitors
-
+            console.log(new_cashier_count)
             if (Number(new_cashier_count) != Number(cashierCount)){
+                console.log("this is running")
                 $("#dataTable").html('')
                 visitors.forEach((visitor) => {
                   const htmlStatus = (visitor.Status == "Pending") ? `<span class="bg-orange-200 px-3 py-1 rounded-full">${visitor.Status}</span>` : `<span class="bg-sky-200 px-3 py-1 rounded-full">${visitor.Status}</span>`
@@ -478,6 +480,115 @@
         })
       }
 
+
+      const searchFunction = () => {
+          $.ajax({
+            url: `${serverName}/search_visitor`,
+            type:"POST",
+            headers: {
+                "X-CSRFToken": getCSRFToken(),
+            },
+            data: JSON.stringify({
+              'name': $("#searchInputVisitor").val()
+            }),
+            success: (response) => {
+              let data = response.data
+              let newData = ''
+              $("#dataTable").html('')
+
+
+              data.forEach((visitor) => {
+                 newData += `
+                  <tr class="pt-2"  >
+                    <td class="pt-3 font-semibold">
+                      ${visitor.FirstName} ${visitor.LastName}
+                    </td>
+                    <td class="pt-3 font-semibold">${visitor.Type}</td>
+                    <td class="pt-3 font-semibold">${visitor.Purpose}</td>
+                    <td
+                      class="pt-3 font-semibold"
+                      id="Status${visitor.RFID_NUM}"
+                    >
+                      ${
+                          visitor.Status == 'Pending' ?
+                          `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                          >${visitor.Status}</span
+                          >`: visitor.Status == "Ongoing" ?
+                        `<span class="bg-sky-200 px-3 py-1 rounded-full"
+                          >${visitor.Status}</span` : `<span class="bg-green-200 px-3 py-1 rounded-full"
+                          >${visitor.Status}</span`
+                      }
+                    </td>
+                    <td class="pt-3 font-semibold text-center">
+                      <button
+                        class="transition-all duration-300 hover:-translate-y-2 hover:bg-green-400 px-3 px-1 rounded-full border-2 border-black text-xl ring-2 registrarBtn"
+                        data-first-name="${visitor.FirstName}"
+                        data-last-name="${visitor.LastName}"
+                        data-id-type="${visitor.Type}"
+                        data-rfid="${visitor.RFID_NUM}"
+                        data-purpose = ${visitor.Status}
+                      >
+                        Start
+                      </button>
+                    </td>
+                    <td class="pt-3 font-semibold">${visitor.LogIn}$</td>
+
+                    <td class="pt-3 text-center font-semibold">
+                      <button
+                        class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
+                        id="row${visitor.Count}"
+                        data-name="${visitor.FirstName} ${visitor.LastName}"
+                        data-purpose="${visitor.Purpose}"
+                        data-timeIn="${visitor.LogIn}"
+                      >
+                        Contact to admin
+                      </button>
+                    </td>
+                  </tr>
+                  `
+              })
+              $("#dataTable").append(newData)
+            },
+            error: function (xhr, status, error) {
+              console.log("Error", error);
+            },
+          })
+        }
+
+        const sendEmail = (name, purpose, timein) => {
+                $.ajax({
+                  url:`${serverName}/sent`,
+                  type: "POST",
+                  headers: {
+                    "X-CSRFToken": getCSRFToken(),
+                  },
+                  data: JSON.stringify({
+                    "name":name,
+                    "purpose":purpose,
+                    "timeIn": timein
+                  }),
+                  success: (response) => {
+                    console.log(response)
+                  },
+                  error: function (xhr, status, error) {
+                  console.log("Error", error);
+                  },
+                })
+        }
+
+
+        document.querySelector("#dataTable").addEventListener("click", (e) => {
+
+            if (e.target.classList.contains("missingEmail")){
+                const btn = e.target.dataset
+                sendEmail(btn.name, btn.purpose, btn.timein)
+            }
+        })
+
+        document.querySelector("#searchBtn_visitor").addEventListener("click", ()=> {
+            searchFunction()
+        })
+
       const removing_visitor = () => {
         $.ajax({
           url: `${serverName}/egress`,
@@ -646,7 +757,7 @@
                     })
                   }
                   $("#dataTable").append(htmlLine);
-                  currentRegistrarCount = regis_count
+                  currentAccountingCount = account_count
               },
               error: function (xhr, status, error) {
                       console.log("Error", error);

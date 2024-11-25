@@ -32,7 +32,7 @@
   <body>
     <div class="flex flex-row">
       <div
-        class="transition-all duration-500 w-96 bg-gray-200 text-black h-screen static"
+        class="transition-all duration-500 w-96 bg-gray-200 text-black h-screen static max-w-screen-xl"
         id="sidebar"
       >
         {% include "./includes/sidebar.html" %}
@@ -46,6 +46,13 @@
             ></i>
             Welcome Users
           </div>
+        </div>
+        <div class="mt-5 flex justify-center" id="card_slot_text">
+          <h1
+            class="px-2 p-1 bg-red-200 rounded shadow-md shadow-black rounded-full"
+          >
+            The Card Slot is already full
+          </h1>
         </div>
         <div
           class="grid grid-cols-1 xl:grid-cols-4 md:grid-cols-2 place-items-center place-content-center mt-10 mb-10 gap-5"
@@ -308,8 +315,8 @@
         return document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       }
 
-             const server = "http://192.168.1.8:8000";
-
+             const server = "http://172.21.25.211:8000";
+            $("#card_slot_text").hide();
              // const server = "http://127.0.0.1:8000"
 
              const minimizeBtn = document.querySelector("#minimizeBtn");
@@ -404,7 +411,10 @@
                    var count = response.count
                    var visitor = response.visitor
                    let newData = ''
-                   if (count > currentCount){
+                   if (count == 15){
+                    $("#card_slot_text").show(1000);
+                   }
+                   if (count > currentCount && count <= 15){
                          newData += `
                            <tr class="pt-2">
                              <td class="pt-3 font-semibold">
@@ -436,7 +446,7 @@
                                <button
                                  class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                  id = 'row${count}'
-                                 data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                                 data-name="${visitor.FirstName} ${visitor.LastName}"
                                  data-purpose="${visitor.Purpose}"
                                  data-timeIn="${visitor.LogIn}"
                                >
@@ -468,7 +478,9 @@
                     let newData = ''
                     var count = response.count
                     var info = response.update
-
+                    if (count == 14){
+                      $("#card_slot_text").hide();
+                    }
                     if (count < currentCount){
                      info.forEach((visitor) => {
                        console.log(visitor.Status)
@@ -508,7 +520,7 @@
                                <button
                                  class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                  id = 'row${count}'
-                                 data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                                 data-name="${visitor.FirstName} ${visitor.LastName}"
                                 data-purpose="${visitor.Purpose}"
                                   data-timeIn="${visitor.LogIn}"
                                >
@@ -538,6 +550,7 @@
                    var tblData = ''
                    console.log(Number(response.cashier_count))
                    if (currentCountCashier != Number(response.cashier_count)){
+
                      var visitors = response.visitors
                      document.querySelector("#dataTable").innerHTML = ''
 
@@ -589,7 +602,7 @@
                              <button
                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                id="row${visitor.Count}"
-                               data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                               data-name="${visitor.FirstName} ${visitor.LastName}"
                                 data-purpose="${visitor.Purpose}"
                                 data-timeIn="${visitor.LogIn}"
                              >
@@ -676,7 +689,7 @@
                              <button
                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                id="row${visitor.Count}"
-                               data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                               data-name="${visitor.FirstName} ${visitor.LastName}"
                                 data-purpose="${visitor.Purpose}"
                                 data-timeIn="${visitor.LogIn}"
                              >
@@ -763,7 +776,7 @@
                              <button
                                class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                                id="row${visitor.Count}"
-                               data-name="${visitor.FirstName} ${visitor.LastName|title}"
+                               data-name="${visitor.FirstName} ${visitor.LastName}"
                                 data-purpose="${visitor.Purpose}"
                                 data-timeIn="${visitor.LogIn}"
                              >

@@ -31,8 +31,8 @@ def changeQuery(query):
         connection.close()
 
 def SendEmail(name, time, purpose):
-    email_Receive = "moradacarl2711@gmail.com"
-    # email_Receive = "nicochristopher0@gmail.com"
+    # email_Receive = "moradacarl2711@gmail.com"
+    email_Receive = "nicochristopher0@gmail.com"
     Subject = "Missing RFID Card"
     message = MIMEMultipart()
     message["From"] = "monitorbroodingrearing@gmail.com"

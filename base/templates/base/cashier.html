@@ -245,6 +245,9 @@
                     <button
                       class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                       id="row{{visitor.Count}}"
+                      data-name="{{visitor.FirstName}} {{visitor.LastName|title}}"
+                      data-purpose="{{visitor.Purpose}}"
+                      data-timeIn="{{visitor.LogIn}}"
                     >
                       Contact to admin
                     </button>
@@ -268,7 +271,7 @@
       AOS.init();
     </script>
     <script>
-        const serverName = "http://192.168.1.8:8000";
+        const serverName = "http://172.21.25.211:8000";
         // const serverName = "http://127.0.0.1:8000";
         function getCSRFToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute("content");
@@ -333,6 +336,9 @@
                       <button
                         class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                         id="row${visitor.Count}"
+                        data-name="${visitor.FirstName} ${visitor.LastName}"
+                        data-purpose="${visitor.Purpose}"
+                        data-timeIn="${visitor.LogIn}"
                       >
                         Contact to admin
                       </button>
@@ -412,6 +418,9 @@
                       <button
                         class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                         id="row${visitor.Count}"
+                        data-name="${visitor.FirstName} ${visitor.LastName}"
+                        data-purpose="${visitor.Purpose}"
+                        data-timeIn="${visitor.LogIn}"
                       >
                         Contact to admin
                       </button>
@@ -472,6 +481,9 @@
                       <button
                         class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                         id="row${visitor.Count}"
+                        data-name="${visitor.FirstName} ${visitor.LastName}"
+                        data-purpose="${visitor.Purpose}"
+                        data-timeIn="${visitor.LogIn}"
                       >
                         Contact to admin
                       </button>
@@ -541,6 +553,9 @@
                       <button
                         class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                         id="row${visitor.Count}"
+                        data-name="${visitor.FirstName} ${visitor.LastName}"
+                        data-purpose="${visitor.Purpose}"
+                        data-timeIn="${visitor.LogIn}"
                       >
                         Contact to admin
                       </button>
@@ -652,12 +667,12 @@
                 "X-CSRFToken": getCSRFToken(),
               },
               success: (response) => {
-                  let regis_count = response.count_registrar
+                  let regis_count = response.count_registrar[0]["COUNT(*)"]
                   let data = response.registrar
                   let htmlLine = ''
-
-                  console.log("New Registrar")
+                  console.log(regis_count, currentAccountingCount)
                   if (Number(regis_count) != Number(currentRegistrarCount)){
+                      console.log("new registrar")
                       $("#dataTable").html('')
 
                       data.forEach((visitor) => {
@@ -693,6 +708,9 @@
                             <button
                               class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                               id="row${visitor.Count}"
+                              data-name="${visitor.FirstName} ${visitor.LastName}"
+                              data-purpose="${visitor.Purpose}"
+                              data-timeIn="${visitor.LogIn}"
                             >
                               Contact to admin
                             </button>
@@ -757,6 +775,9 @@
                             <button
                               class="transition-all duration-500 rounded text-white bg-black px-2 hover:-translate-y-2 missingEmail"
                               id="row${visitor.Count}"
+                              data-name="${visitor.FirstName} ${visitor.LastName}"
+                              data-purpose="${visitor.Purpose}"
+                              data-timeIn="${visitor.LogIn}"
                             >
                               Contact to admin
                             </button>
@@ -766,13 +787,34 @@
                     })
                   }
                   $("#dataTable").append(htmlLine);
-                  currentRegistrarCount = regis_count
+                  currentAccountingCount = account_count
               },
               error: function (xhr, status, error) {
                       console.log("Error", error);
               }
           })
         }
+
+        const sendEmail = (name, purpose, timein) => {
+                 $.ajax({
+                   url:`${serverName}/sent`,
+                   type: "POST",
+                   headers: {
+                     "X-CSRFToken": getCSRFToken(),
+                   },
+                   data: JSON.stringify({
+                     "name":name,
+                     "purpose":purpose,
+                     "timeIn": timein
+                   }),
+                   success: (response) => {
+                     console.log(response)
+                   },
+                   error: function (xhr, status, error) {
+                   console.log("Error", error);
+                   },
+                 })
+          }
 
         let allbtn_add = document.querySelectorAll(".cashierData");
         let allbtn_transaction = document.querySelectorAll(".transacted");
@@ -792,10 +834,10 @@
               setTimeout(() => {
                 $(`.${lastName}_${id}`).remove();
               }, 1500);
-              const returnPending = document.getElementById(`Status${rfid_Num}`);
-              returnPending.innerHTML = `<span class="bg-orange-200 px-3 py-1 rounded-full"
-                        >Pending</span
-                      >`;
+              // const returnPending = document.getElementById(`Status${rfid_Num}`);
+              // returnPending.innerHTML = `<span class="bg-orange-200 px-3 py-1 rounded-full"
+                        // >Pending</span
+                      // >`;
               //const visitorPurpose = document.getElementById(`pur${rfid_Num}`);
               // visitorPurpose.innerHTML = "School";
             }
@@ -828,6 +870,14 @@
         document.querySelector("#searchBtn_visitor").addEventListener("click", ()=> {
             searchFunction()
         })
+
+        document.querySelector("#dataTable").addEventListener("click", (e) => {
+
+              if (e.target.classList.contains("missingEmail")){
+                  const btn = e.target.dataset
+                  sendEmail(btn.name, btn.purpose, btn.timein)
+              }
+            })
         setInterval(() =>{
           new_registrar()
           new_visitor()

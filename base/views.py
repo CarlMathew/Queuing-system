@@ -197,6 +197,7 @@ def registrar(request):
     count = "SELECT COUNT(*) FROM Visitors_Info"
     registrar_query = "SELECT * FROM trn_registrar"
     cashier_count = execute_query("SELECT COUNT(*) AS Count FROM trn_cashier")[0]["Count"]
+    account_count = execute_query("SELECT COUNT(*) AS Count FROM trn_accounting")[0]["Count"]
     visitors_update = execute_query("SELECT * FROM Visitors_Info")
     result_visitor = execute_query(query)
     result_registrar = execute_query(registrar_query)
@@ -205,10 +206,13 @@ def registrar(request):
     print(result_registrar)
     
     return render(request, 'base/registrar.html',
-                {"visitors": result_visitor,
-                "registrar": result_registrar,
-                "count": total_count,
-                "cashier_count": cashier_count})
+                    {"visitors": result_visitor,
+                    "registrar": result_registrar,
+                    "count": total_count,
+                    "cashier_count": cashier_count,
+                    "accounting_count": account_count
+                    }
+                )
 
 def addRegistrar(request):
     transactIn = str(datetime.now())[:-3]
@@ -288,7 +292,7 @@ def accounting_web(request):
         "visitors": visitors,
         "accounting": total_accounting,
         "cashier": total_cashier,
-        "registrarx":total_registrar
+        "registrar":total_registrar
     })
     
 def addAccounting(request):

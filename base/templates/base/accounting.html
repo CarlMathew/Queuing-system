@@ -258,14 +258,14 @@
     <script>
             let currentCount = {{ count|safe }}
             let cashierCount = {{ cashier|safe }}
-            let currentRegistrarCount = {{ registrar|safe }}
-            const minimizeBtn = document.querySelector("#minimizeBtn");
+            let currentRegistrarCount = {{ registrar|default:0|safe }}
+            let minimizeBtn = document.querySelector("#minimizeBtn");
             minimizeBtn.addEventListener("click", () => {
               document.querySelector("#sidebar").classList.toggle("w-0");
               document.querySelector("#sidebar").classList.toggle("overflow-hidden");
             });
             // const serverName = "http://127.0.0.1:8000";
-            const serverName = "http://192.168.1.8:8000";
+            const serverName = "http://172.21.25.211:8000";
             function getCSRFToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       }
@@ -595,8 +595,6 @@
                   let regis_count = response.count_registrar
                   let data = response.registrar
                   let htmlLine = ''
-
-                  console.log("New Registrar")
                   if (Number(regis_count) != Number(currentRegistrarCount)){
                       $("#dataTable").html('')
 
